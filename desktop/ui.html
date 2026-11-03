@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hackathon Watch — NEXUS AiOS</title>
+<style>
+:root {
+  --bg:#070b11; --bg2:#0c121b; --panel:#0f1620; --panel2:#131c29;
+  --line:#1c2938; --line2:#24364a;
+  --fg:#d9e2ee; --dim:#71869c; --faint:#4d6075;
+  --hi:#ffd34d; --ok:#4ade80; --mid:#facc15; --bad:#f87171; --hi2:#7aa2f7;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; padding:28px 32px 40px;
+  color:var(--fg); font-family:var(--sans); font-size:13.5px; line-height:1.5;
+  background:
+    radial-gradient(1100px 480px at 50% -140px, rgba(122,163,247,.10), transparent 65%),
+    radial-gradient(900px 420px at 85% -100px, rgba(255,211,77,.05), transparent 60%),
+    var(--bg);
+}
+h1 { font-size:22px; margin:0 0 2px; letter-spacing:.02em; }
+h1 .our { color:var(--hi); }
+.sub { color:var(--dim); font-size:12px; margin:0 0 22px; }
+.langsw { position:absolute; top:26px; right:32px; display:flex; gap:4px; z-index:5; }
+.langsw button { background:var(--panel2); color:var(--dim); border:1px solid var(--line2); border-radius:6px; padding:5px 12px; font:inherit; font-size:12px; cursor:pointer; }
+.langsw button.on { color:var(--hi); border-color:var(--hi); box-shadow:0 0 10px rgba(255,211,77,.25); }
+.cards { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:18px; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; position:relative; overflow:hidden; }
+.card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--hi),transparent); opacity:.7; }
+.card .n { font-size:28px; font-weight:700; color:#fff; font-family:var(--mono); }
+.card .l { color:var(--dim); font-size:11px; text-transform:uppercase; letter-spacing:.08em; margin-top:2px; }
+.toolbar { margin:0 0 14px; color:var(--dim); font-size:12.5px; display:flex; gap:18px; align-items:center; }
+.toolbar label { cursor:pointer; display:flex; gap:6px; align-items:center; }
+table { width:100%; border-collapse:separate; border-spacing:0; background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+th,td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); }
+thead th { position:sticky; top:0; background:#0d1622; color:var(--dim); font-size:11px; text-transform:uppercase; letter-spacing:.06em; z-index:2; }
+tbody tr:nth-child(even) { background:rgba(255,255,255,.015); }
+tbody tr:hover { background:rgba(122,163,247,.06); }
+tbody tr.row { cursor:pointer; }
+tr.acc-row td { cursor:default; background:var(--panel2); }
+tr.acc-row td .acc-body { padding:4px 4px 8px; }
+th.sortable { cursor:pointer; user-select:none; }
+th.sortable:hover { color:var(--fg); }
+tr.our td { background:rgba(255,211,77,.08); }
+tr.our { box-shadow:inset 3px 0 0 var(--hi), 0 0 18px rgba(255,211,77,.08); }
+tr.our .proj { color:var(--hi); font-weight:700; }
+.badge { background:var(--hi); color:#0b0f14; font-size:10px; padding:1px 7px; border-radius:4px; font-weight:800; letter-spacing:.04em; }
+.badge.heuristic { background:var(--hi2); color:#0b0f14; margin-left:6px; }
+.badge.llm { background:var(--ok); color:#0b0f14; margin-left:6px; }
+td.place { color:var(--dim); width:44px; font-family:var(--mono); text-align:right; }
+td.proj { min-width:170px; font-weight:600; }
+td.tracks { color:var(--hi2); font-size:12px; }
+td.num { width:74px; font-weight:700; color:var(--hi); font-family:var(--mono); text-align:right; }
+td.tx { width:110px; font-family:var(--mono); font-size:11px; color:var(--faint); }
+td.tx a { color:var(--hi2); text-decoration:none; }
+td.tx a:hover { text-decoration:underline; }
+td.verdict { color:var(--dim); font-size:12px; }
+.acc-meta { display:flex; flex-wrap:wrap; gap:8px 20px; margin:2px 0 10px; font-size:12px; color:var(--dim); }
+.acc-meta b { color:var(--fg); }
+.acc-tabs { display:flex; gap:4px; margin-bottom:10px; }
+.acc-tabs button { background:var(--panel); color:var(--dim); border:1px solid var(--line); border-radius:6px; padding:4px 12px; font:inherit; font-size:12px; cursor:pointer; }
+.acc-tabs button.on { color:var(--hi); border-color:var(--hi); }
+.acc-note { color:var(--fg); font-size:13px; max-width:900px; }
+.demo { padding:2px 9px; border-radius:20px; font-size:11px; font-weight:600; }
+.demo.ok { background:rgba(74,222,128,.14); color:var(--ok); }
+.demo.mid { background:rgba(250,204,21,.14); color:var(--mid); }
+.demo.bad { background:rgba(248,113,113,.14); color:var(--bad); }
+.threat { padding:2px 9px; border-radius:20px; font-size:11px; font-weight:700; }
+.threat.high { background:rgba(248,113,113,.18); color:var(--bad); }
+.threat.med { background:rgba(250,204,21,.14); color:var(--mid); }
+.threat.low { background:rgba(122,163,247,.14); color:var(--hi2); }
+body.hw-desktop { padding-top:66px; }
+.foot { margin-top:16px; padding-top:10px; border-top:1px solid var(--line); color:var(--faint); font-size:11px; }
+</style></head><body>
+<h1>⚔ Hackathon Watch <span class="our">· NEXUS AiOS</span></h1>
+<div class="langsw">
+  <button id="lang-en" class="on" type="button">EN</button>
+  <button id="lang-ru" type="button">RU</button>
+</div>
+<div class="sub" id="sub">loading…</div>
+<div class="cards">
+  <div class="card"><div class="n" id="c-total">–</div><div class="l" data-i18n="stat.projects">Projects</div></div>
+  <div class="card"><div class="n" id="c-live">–</div><div class="l" data-i18n="stat.live">Live demos</div></div>
+  <div class="card"><div class="n" id="c-xpost">–</div><div class="l" data-i18n="stat.xpost">X-post</div></div>
+  <div class="card"><div class="n" id="c-high">–</div><div class="l" data-i18n="stat.high">High threat</div></div>
+  <div class="card"><div class="n" id="c-rank">–</div><div class="l" data-i18n="stat.rank">NEXUS rank</div></div>
+</div>
+<div class="toolbar">
+  <label><input type="checkbox" id="f-heuristic" checked> <span data-i18n="filter.heuristic">show heuristic rows</span></label>
+  <span id="hint"></span>
+</div>
+<table>
+<thead><tr>
+  <th class="sortable" data-k="rank" data-i18n="col.rank">Place</th>
+  <th data-i18n="col.project">Project</th>
+  <th class="sortable" data-k="tracks" data-i18n="col.tracks">Tracks</th>
+  <th data-i18n="col.demo">Demo</th>
+  <th class="sortable" data-k="win_prob" data-i18n="col.winprob">WinProb</th>
+  <th class="sortable" data-k="strength" data-i18n="col.strength">Strength</th>
+  <th data-i18n="col.tx">TxHash</th>
+  <th data-i18n="col.note">Analyst note</th>
+</tr></thead>
+<tbody id="rows"></tbody>
+</table>
+<div class="foot" id="foot"></div>
+<script>
+(function () {
+  var I18N = {
+    en: {
+      'stat.projects': 'Projects', 'stat.live': 'Live demos', 'stat.xpost': 'X-post',
+      'stat.high': 'Strong', 'stat.rank': 'NEXUS rank',
+      'filter.heuristic': 'show heuristic rows',
+      'col.rank': 'Place', 'col.project': 'Project', 'col.tracks': 'Tracks',
+      'col.demo': 'Demo', 'col.winprob': 'WinProb', 'col.strength': 'Strength',
+      'col.tx': 'TxHash', 'col.note': 'Analyst note',
+      'threat.high': 'HIGH', 'threat.med': 'MED', 'threat.low': 'LOW',
+      'demo.none': 'no demo', 'demo.dead': 'unavailable',
+      'hint': 'shown %1 of %2',
+      'sub': 'schema v%1 · generated %2 · %3 projects · new: %4',
+      'foot': 'WinProb = 0.40·maturity + 0.35·demo_quality + 0.25·track_breadth (0–10). Strength: HIGH ≥7 / MED ≥4 / LOW <4. H — heuristic estimate. Source: %1',
+      'err': 'error loading hackwatch.json: %1 (run: cd D:/Temp/hackwatch && python -m hackwatch)',
+      'loading': 'loading…'
+    },
+    ru: {
+      'stat.projects': 'Проектов', 'stat.live': 'Живых демо', 'stat.xpost': 'X-post',
+      'stat.high': 'Сильные', 'stat.rank': 'Ранг NEXUS',
+      'filter.heuristic': 'показывать heuristic-строки',
+      'col.rank': 'Место', 'col.project': 'Проект', 'col.tracks': 'Треки',
+      'col.demo': 'Демо', 'col.winprob': 'Шансы', 'col.strength': 'Сила',
+      'col.tx': 'TxHash', 'col.note': 'Заметка аналитика',
+      'threat.high': 'Высокая', 'threat.med': 'Средняя', 'threat.low': 'Низкая',
+      'demo.none': 'нет демо', 'demo.dead': 'недоступно',
+      'hint': 'показано %1 из %2',
+      'sub': 'схема v%1 · сгенерировано %2 · %3 проектов · новых: %4',
+      'foot': 'Шансы = 0.40·maturity + 0.35·demo_quality + 0.25·track_breadth (0–10). Сила: HIGH ≥7 / MED ≥4 / LOW <4. H — эвристическая оценка. Источник: %1',
+      'err': 'ошибка загрузки hackwatch.json: %1 (запустите: cd D:/Temp/hackwatch && python -m hackwatch)',
+      'loading': 'загрузка…'
+    }
+  };
+  var lang = localStorage.getItem('hw-lang') || 'en';
+  var t = function (key, args) {
+    var s = (I18N[lang] || I18N.en)[key] || (I18N.en[key] || key);
+    (args || []).forEach(function (a, i) { s = s.replace('%' + (i + 1), a); });
+    return s;
+  };
+  var state = { key: 'rank', dir: 1, showHeuristic: true, open: null };
+  var data = null;
+  var accLang = { en: 'en', ru: 'ru' }; // вкладка внутри карточки: отдельная от lang UI
+  /* analysis: три схемы:
+       новая: numbers на верхнем уровне + en/ru = {rationale, demo_note, verdict, details} + evaluator
+       средняя: analysis.en/analysis.ru — объекты с полями (числа внутри каждой локали)
+       старая: analysis.verdict / analysis.threat (плоская) */
+  var isNewSchema = function (a) {
+    return a && (a.en || {}).rationale !== undefined || a && (a.ru || {}).rationale !== undefined;
+  };
+  /* числа (maturity/threat/track_fit) — общие для новой схемы, из en/ru для старой */
+  var numOf = function (a) {
+    if (isNewSchema(a)) return a;
+    var cur = a.en || a.ru || {};
+    return cur && typeof cur === 'object' && ('verdict' in cur || 'threat' in cur) ? cur : a;
+  };
+  /* текстовые поля для текущей вкладки аккордеона */
+  var textOf = function (a, l) {
+    if (isNewSchema(a)) return a[l] || {};
+    var cur = a[l] || a.en || {};
+    if (cur && typeof cur === 'object' && ('verdict' in cur || 'threat' in cur)) return cur;
+    return a; // плоская
+  };
+  /* для общих ячеек таблицы — текущий язык UI */
+  var anaOf = function (row) {
+    var a = row.analysis || {};
+    var cur = textOf(a, lang);
+    if (cur && typeof cur === 'object' && ('verdict' in cur || 'threat' in cur)) return cur;
+    return a;
+  };
+  var threatLevel = function (x) {
+    if (x >= 7) return 'high';
+    if (x >= 4) return 'med';
+    return 'low';
+  };
+  var strengthOf = function (r) {
+    var s = r.score && r.score.strength != null ? r.score.strength : null;
+    if (s != null) return s;
+    return (numOf(r.analysis || {}).threat) || 0;
+  };
+  var demoHtml = function (d) {
+    if (!d || !d.url) return '<span class="demo bad">' + t('demo.none') + '</span>';
+    if (!d.live) return '<span class="demo bad">' + t('demo.dead') + '</span>';
+    return '<span class="demo ok">' + escapeHtml(d.assessment || 'live') + '</span>';
+  };
+  var cellVal = function (row, key) {
+    if (key === 'rank') return row.rank;
+    if (key === 'win_prob') return row.score ? row.score.win_prob : NaN;
+    if (key === 'strength') {
+      var s = row.score && row.score.strength != null ? row.score.strength : null;
+      if (s != null) return s;
+      return (numOf(row.analysis || {}).threat) || 0;
+    }
+    if (key === 'tracks') return (row.tracks || []).join(' ').toLowerCase();
+    return '';
+  };
+  var applyI18n = function () {
+    document.documentElement.lang = lang;
+    document.getElementById('lang-en').className = lang === 'en' ? 'on' : '';
+    document.getElementById('lang-ru').className = lang === 'ru' ? 'on' : '';
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      el.textContent = t(el.getAttribute('data-i18n'));
+    });
+    if (data) fillData();
+  };
+  var fillData = function () {
+    var newN = data.source && (Array.isArray(data.source.new_ids_this_run) ? data.source.new_ids_this_run.length : (data.source.new_ids_this_run != null ? data.source.new_ids_this_run : data.source.new_since_last_run));
+    document.getElementById('sub').textContent = t('sub', [data.schema_version, data.generated_at, data.source.total_projects, newN == null ? 0 : newN]);
+    document.getElementById('c-total').textContent = data.source.total_projects;
+    document.getElementById('c-live').textContent = data.stats.live_demos;
+    document.getElementById('c-xpost').textContent = data.stats.x_post_demos;
+    document.getElementById('c-high').textContent = data.stats.high_threat;
+    document.getElementById('c-rank').textContent = data.our_project.rank;
+    document.getElementById('foot').textContent = t('foot', [data.source.catalog]);
+    render();
+  };
+  var render = function () {
+    if (!data) return;
+    var rows = data.ranking.filter(function (r) {
+      if (state.showHeuristic) return true;
+      var a = anaOf(r);
+      return a.source !== 'heuristic';
+    });
+    rows.sort(function (a, b) {
+      var va = cellVal(a, state.key), vb = cellVal(b, state.key);
+      if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * state.dir;
+      if (va < vb) return -1 * state.dir;
+      if (va > vb) return 1 * state.dir;
+      return 0;
+    });
+    var tbody = document.getElementById('rows');
+    tbody.innerHTML = '';
+    rows.forEach(function (r) {
+      var ana = r.analysis || {};
+      var nums = numOf(ana);
+      var texts = textOf(ana, lang);
+      var heuristic = (ana.evaluator === 'heuristic') || (texts.source === 'heuristic') || (nums.source === 'heuristic');
+      var tr = document.createElement('tr');
+      tr.className = 'row' + (r.is_ours ? ' our' : '');
+      tr.setAttribute('data-id', r.id);
+      tr.innerHTML =
+        '<td class="place">' + r.rank + '</td>' +
+        '<td class="proj">' + escapeHtml(r.project_name) +
+          (r.is_ours ? ' <span class="badge">OUR</span>' : '') +
+          (heuristic ? ' <span class="badge heuristic" title="' + t('filter.heuristic') + '">H</span>' : ' <span class="badge llm" title="LLM">L</span>') +
+        '</td>' +
+        '<td class="tracks">' + escapeHtml((r.tracks || []).join(' · ')) + '</td>' +
+        '<td>' + demoHtml(r.demo) + '</td>' +
+        '<td class="num">' + (r.score ? r.score.win_prob : '–') + '</td>' +
+        '<td><span class="threat ' + threatLevel(strengthOf(r)) + '">' + t('threat.' + threatLevel(strengthOf(r))) + '</span> ' +
+          escapeHtml((texts.threat_rationale || texts.rationale || '').slice(0, 60)) + '</td>' +
+        '<td class="tx">' + txHtml(r) + '</td>' +
+        '<td class="verdict">' + escapeHtml((texts.verdict || '').slice(0, 160)) + '</td>';
+      tbody.appendChild(tr);
+      if (state.open === r.id) tbody.appendChild(accordionRow(r));
+    });
+    document.getElementById('hint').textContent = t('hint', [rows.length, data.ranking.length]);
+  };
+  var txHtml = function (r) {
+    // Заглушка: ACE скоро начнёт писать on-chain оценки в hackwatch.yksunder.testnet.
+    var tx = (r.tx && r.tx.hash) || r.tx_hash || r.onchain_tx;
+    if (tx) return '<a href="https://testnet.nearblocks.io/txns/' + escapeHtml(tx) + '" target="_blank" rel="noopener">' + escapeHtml(String(tx).slice(0, 10)) + '…</a>';
+    return '<span class="tx-empty">—</span>';
+  };
+  var accordionRow = function (r) {
+    var tr = document.createElement('tr');
+    tr.className = 'acc-row';
+    tr.innerHTML = '<td colspan="8"><div class="acc-body" id="acc-' + escapeHtml(r.id) + '"></div></td>';
+    var body = tr.querySelector('.acc-body');
+    body.appendChild(accordionContent(r));
+    return tr;
+  };
+  var accordionContent = function (r) {
+    var wrap = document.createElement('div');
+    var tabs = document.createElement('div');
+    tabs.className = 'acc-tabs';
+    ['en', 'ru'].forEach(function (l) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = l.toUpperCase();
+      b.className = accLang === l ? 'on' : '';
+      b.addEventListener('click', function () {
+        accLang = l;
+        var holder = document.getElementById('acc-' + escapeHtml(r.id));
+        if (holder) { holder.innerHTML = ''; holder.appendChild(accordionContent(r)); }
+      });
+      tabs.appendChild(b);
+    });
+    var ana = r.analysis || {};
+    var nums = numOf(ana);
+    var a = textOf(ana, accLang);
+    var evaluator = ana.evaluator || a.source || '–';
+    var srcLabel = evaluator === 'nexus/mercury-3' ? 'mercury-3' : evaluator;
+    var meta = document.createElement('div');
+    meta.className = 'acc-meta';
+    meta.innerHTML =
+      '<span><b>' + (accLang === 'ru' ? 'Зрелость' : 'Maturity') + ':</b> ' + (nums.maturity != null ? nums.maturity : '–') + '/10</span>' +
+      '<span><b>' + (accLang === 'ru' ? 'Демо' : 'Demo') + ':</b> ' + escapeHtml(nums.demo_assessment || '–') + '</span>' +
+      '<span><b>' + (accLang === 'ru' ? 'Трек' : 'Track fit') + ':</b> ' + escapeHtml(nums.track_fit || '–') + '</span>' +
+      '<span><b>' + (accLang === 'ru' ? 'Сила' : 'Strength') + ':</b> ' + (strengthOf(r) != null ? strengthOf(r) : '–') + '/10</span>' +
+      '<span><b>' + (accLang === 'ru' ? 'Оценщик' : 'Evaluator') + ':</b> ' + escapeHtml(srcLabel) + '</span>';
+    var rationale = document.createElement('div');
+    rationale.className = 'acc-note';
+    rationale.innerHTML =
+      '<div style="color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">' +
+        (accLang === 'ru' ? 'Обоснование угрозы' : 'Threat rationale') + '</div>' +
+      '<div>' + escapeHtml(a.threat_rationale || a.rationale || '—') + '</div>';
+    var demoR = document.createElement('div');
+    demoR.className = 'acc-note';
+    demoR.style.marginTop = '8px';
+    demoR.innerHTML =
+      '<div style="color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">' +
+        (accLang === 'ru' ? 'Обоснование демо' : 'Demo rationale') + '</div>' +
+      '<div>' + escapeHtml(a.demo_rationale || a.demo_note || '—') + '</div>';
+    var verdict = document.createElement('div');
+    verdict.className = 'acc-note';
+    verdict.style.marginTop = '8px';
+    verdict.innerHTML =
+      '<div style="color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">' +
+        (accLang === 'ru' ? 'Вердикт' : 'Verdict') + '</div>' +
+      '<div>' + escapeHtml(a.verdict || '—') + '</div>';
+    wrap.appendChild(tabs);
+    wrap.appendChild(meta);
+    wrap.appendChild(rationale);
+    wrap.appendChild(demoR);
+    wrap.appendChild(verdict);
+    if (a.details) {
+      var details = document.createElement('div');
+      details.className = 'acc-note';
+      details.style.marginTop = '10px';
+      details.style.borderTop = '1px solid var(--line)';
+      details.style.paddingTop = '8px';
+      details.innerHTML =
+        '<div style="color:var(--hi);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">' +
+          (accLang === 'ru' ? 'ДЕТАЛЬНЫЙ ОТЧЁТ' : 'DETAILED REPORT') + '</div>' +
+        '<div style="line-height:1.6">' + escapeHtml(a.details) + '</div>';
+      wrap.appendChild(details);
+    }
+    return wrap;
+  };
+  var escapeHtml = function (s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  };
+  var load = function () {
+    fetch('hackwatch.json').then(function (resp) {
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      return resp.json();
+    }).then(function (d) {
+      data = d;
+      fillData();
+    }).catch(function (err) {
+      document.getElementById('sub').textContent = t('err', [err.message]);
+    });
+  };
+  document.querySelectorAll('th.sortable').forEach(function (th) {
+    th.addEventListener('click', function () {
+      var k = th.getAttribute('data-k');
+      if (state.key === k) state.dir = -state.dir; else { state.key = k; state.dir = 1; }
+      render();
+    });
+  });
+  document.getElementById('rows').addEventListener('click', function (e) {
+    var tr = e.target.closest('tr.row');
+    if (!tr) return;
+    var id = tr.getAttribute('data-id');
+    state.open = state.open === id ? null : id;
+    render();
+  });
+  document.getElementById('f-heuristic').addEventListener('change', function (e) {
+    state.showHeuristic = e.target.checked;
+    render();
+  });
+  document.getElementById('lang-en').addEventListener('click', function () { lang = 'en'; localStorage.setItem('hw-lang', 'en'); applyI18n(); });
+  document.getElementById('lang-ru').addEventListener('click', function () { lang = 'ru'; localStorage.setItem('hw-lang', 'ru'); applyI18n(); });
+  document.getElementById('sub').textContent = t('loading');
+  applyI18n();
+  load();
+})();
+</script>
+</body></html>

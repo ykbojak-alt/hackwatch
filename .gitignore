@@ -1,0 +1,24 @@
+# Secrets & local state
+key.txt
+*.log
+.env
+.env.*
+
+# Data
+state.json
+state.json.*
+hackwatch.json
+hackwatch.en.json
+scores.json
+*.json.old
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+dist/
+build/
+
+# Rust / contract build artifacts
+contracts/**/target/
