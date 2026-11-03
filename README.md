@@ -149,3 +149,9 @@ HackWatch is the team's second independent hackathon project. The first project 
 ## License
 
 MIT. See [`LICENSE`](LICENSE).
+
+## Disclosure
+
+HackWatch is an independent second submission by the same participant as [NEXUS AiOS](https://github.com/ykbojak-alt/nexus-aios). Both projects disclose each other under hackathon rule Q-015.
+
+HackWatch — независимая вторая заявка того же участника, что и [NEXUS AiOS](https://github.com/ykbojak-alt/nexus-aios). Оба проекта раскрывают свою связь друг с другом согласно правилу хакатона Q-015.
