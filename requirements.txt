@@ -1,0 +1,2 @@
+# Desktop shell (frameless pywebview window)
+pywebview>=6.0

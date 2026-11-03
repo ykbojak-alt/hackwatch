@@ -25,8 +25,9 @@ docs/                 design / judge-facing material
 
 Copy `hackwatch/config.example.json` to `hackwatch/config.json`. The provider
 fields (`provider_endpoint`, `model`, `api_key`) are intentionally empty in the
-public template — bring your own OpenAI-compatible endpoint and key. Without a
-key the scorer degrades to a heuristic fallback (no network).
+public template — fill them in `config.json` (this is the file you edit; see
+`docs/SETUP.md` for the priority order and full instructions). Without a key
+the scorer degrades to a heuristic fallback (no network).
 
 The on-chain registry contract lives at `hackwatch.yksunder.testnet` (NEAR
 Testnet) and exposes `set_score` (owner only), `get_score`, `get_all`.
@@ -37,7 +38,8 @@ Testnet) and exposes `set_score` (owner only), `get_score`, `get_all`.
 powershell -ExecutionPolicy Bypass -File desktop/run_desktop.ps1
 ```
 
-See `docs/` for the judge-facing guide and evidence.
+See `docs/SETUP.md` for setup and scorer usage; `docs/` also holds the
+judge-facing guide and evidence.
 
 ---
 

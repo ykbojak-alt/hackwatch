@@ -50,13 +50,39 @@ CTX.check_hostname = False
 CTX.verify_mode = ssl.CERT_NONE
 
 # ---------- provider config (endpoint + model + key via config/env) ----------
-# Def: наш NexusLink → mercury-3 (Inception), явный mercury-3 slot (не qwen).
-GATEWAY_DEFAULT = os.environ.get("NEXUSLINK_BASE", "https://2.27.5.234.nip.io:4435/v1")
+# Приоритет: config.json (рядом с ядром) > config.example.json > env > дефолт.
+# Публичный шаблон config.example.json имеет пустые поля; пользователь
+# редактирует config.json (см. README).
+GATEWAY_DEFAULT = "https://2.27.5.234.nip.io:4435/v1"
 GATEWAY = os.environ.get("NEXUSLINK_BASE", GATEWAY_DEFAULT)
-# Explicit mercury-3 backend (per alias-map probe 03.11: claude-sonnet-5 → mercury-3).
-# If unset, defaults to mercury-3 alias to stay honest about the evaluator.
 SLOT = os.environ.get("NEXUSLINK_SLOT", "claude-sonnet-5")
 GATEWAY_KEY = os.environ.get("NEXUSLINK_KEY", "")  # in-repo: empty; user supplies
+
+
+def _config_file() -> Path | None:
+    for name in ("config.json", "config.example.json"):
+        p = BASE_DIR / name
+        if p.exists():
+            return p
+    return None
+
+
+def load_provider_config() -> None:
+    """Читает provider из config.json/config.example.json; не перекрывает env."""
+    global GATEWAY, SLOT, GATEWAY_KEY
+    cfg = _config_file()
+    if cfg is None:
+        return
+    try:
+        j = json.loads(cfg.read_text(encoding="utf-8"))
+    except Exception:
+        return
+    if not os.environ.get("NEXUSLINK_BASE") and j.get("provider_endpoint"):
+        GATEWAY = j["provider_endpoint"].rstrip("/")
+    if not os.environ.get("NEXUSLINK_SLOT") and j.get("model"):
+        SLOT = j["model"]
+    if not GATEWAY_KEY and j.get("api_key"):
+        GATEWAY_KEY = j["api_key"]
 
 SCHEMA_VERSION = 1
 CJK = re.compile(r"[\u4e00-\u9fff]")
@@ -677,6 +703,7 @@ def export_lang(contract: dict, lang: str) -> Path:
 
 def main() -> int:
     t0 = time.time()
+    load_provider_config()
     lang = "en"
     reparse = False
     export_langs: list[str] = []
