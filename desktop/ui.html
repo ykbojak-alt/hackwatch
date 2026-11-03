@@ -149,21 +149,18 @@ body.hw-desktop { padding-top:66px; }
   var data = null;
   var accLang = { en: 'en', ru: 'ru' }; // вкладка внутри карточки: отдельная от lang UI
   /* analysis: три схемы:
-       новая: numbers на верхнем уровне + en/ru = {rationale, demo_note, verdict, details} + evaluator
-       средняя: analysis.en/analysis.ru — объекты с полями (числа внутри каждой локали)
-       старая: analysis.verdict / analysis.threat (плоская) */
-  var isNewSchema = function (a) {
-    return a && (a.en || {}).rationale !== undefined || a && (a.ru || {}).rationale !== undefined;
-  };
-  /* числа (maturity/threat/track_fit) — общие для новой схемы, из en/ru для старой */
+       новая v3: analysis.scores = {maturity,near_fit,demo,track_fit,novelty,impact,strength}
+                    + analysis.en/ru = {rationale,demo_note,verdict,details}
+                    + analysis.evaluator + analysis.source
+       средняя v2: analysis.en/ru — объекты с полями (числа внутри каждой локали)
+       старая v1: analysis.verdict / analysis.threat (плоская) */
   var numOf = function (a) {
-    if (isNewSchema(a)) return a;
+    if (a.scores && typeof a.scores === 'object') return a.scores;
     var cur = a.en || a.ru || {};
     return cur && typeof cur === 'object' && ('verdict' in cur || 'threat' in cur) ? cur : a;
   };
   /* текстовые поля для текущей вкладки аккордеона */
   var textOf = function (a, l) {
-    if (isNewSchema(a)) return a[l] || {};
     var cur = a[l] || a.en || {};
     if (cur && typeof cur === 'object' && ('verdict' in cur || 'threat' in cur)) return cur;
     return a; // плоская
@@ -181,9 +178,12 @@ body.hw-desktop { padding-top:66px; }
     return 'low';
   };
   var strengthOf = function (r) {
-    var s = r.score && r.score.strength != null ? r.score.strength : null;
+    var a = r.analysis || {};
+    var s = (a.scores && a.scores.strength != null) ? a.scores.strength : null;
     if (s != null) return s;
-    return (numOf(r.analysis || {}).threat) || 0;
+    var s2 = (a.scores && a.scores.threat != null) ? a.scores.threat : null;
+    if (s2 != null) return s2;
+    return (numOf(a).threat) || 0;
   };
   var demoHtml = function (d) {
     if (!d || !d.url) return '<span class="demo bad">' + t('demo.none') + '</span>';
@@ -193,11 +193,7 @@ body.hw-desktop { padding-top:66px; }
   var cellVal = function (row, key) {
     if (key === 'rank') return row.rank;
     if (key === 'win_prob') return row.score ? row.score.win_prob : NaN;
-    if (key === 'strength') {
-      var s = row.score && row.score.strength != null ? row.score.strength : null;
-      if (s != null) return s;
-      return (numOf(row.analysis || {}).threat) || 0;
-    }
+    if (key === 'strength') return strengthOf(row);
     if (key === 'tracks') return (row.tracks || []).join(' ').toLowerCase();
     return '';
   };
@@ -351,7 +347,7 @@ body.hw-desktop { padding-top:66px; }
     });
   };
   var load = function () {
-    fetch('hackwatch.json').then(function (resp) {
+    fetch('hackwatch.json?t=' + Date.now()).then(function (resp) {
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       return resp.json();
     }).then(function (d) {
