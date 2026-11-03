@@ -1,0 +1,1018 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hackathon Watch — NEXUS AiOS</title>
+<style>
+:root { --bg:#0b0d11; --panel:#10131a; --raised:#161a22; --line:#232833; --line2:#2d3340;
+  --fg:#e9e4d6; --cyan:#00c8ff; --gold:#d4af37; --red:#d9605a; --amber:#e8c96a; --green:#8fb573;
+  --red-dim:rgba(217,96,90,.14); --cyan-dim:rgba(0,200,255,.12); --gold-dim:rgba(212,175,55,.10);
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace; }
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font:13.5px/1.5 ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif; margin:0; padding:24px 30px 40px; }
+h1 { font-size:21px; margin:0 0 2px; } h1 .our { color:var(--gold); }
+.sub { color:var(--muted, #7d8494); font-size:12px; margin-bottom:20px; }
+.cards { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:16px; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:12px 14px; }
+.card .n { font-size:24px; font-weight:700; font-family:var(--mono); } .card .l { color:var(--muted, #7d8494); font-size:10.5px; }
+table { width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+th,td { text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); }
+th { color:var(--muted, #7d8494); font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; background:#0e131c; }
+tr.our td { background:linear-gradient(90deg, var(--gold-dim), transparent 38%); }
+tr.our { box-shadow:inset 2px 0 0 var(--gold); }
+tr.our .proj { color:var(--gold); }
+.badge-our { display:inline-block; border:1px solid var(--gold); color:var(--gold); font-size:9.5px; font-weight:700; letter-spacing:.08em; padding:0 5px; border-radius:4px; margin-left:6px; }
+.src-chip { display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.05em; padding:1px 6px; border-radius:4px; margin-left:6px; }
+.src-chip.llm { color:var(--cyan); border:1px solid rgba(0,200,255,.45); background:var(--cyan-dim); }
+.src-chip.heuristic { color:var(--muted, #7d8494); border:1px dashed var(--line2); opacity:.75; }
+.ev-chip { display:inline-block; font-size:9.5px; color:var(--muted, #7d8494); border:1px solid var(--line); border-radius:4px; padding:1px 5px; margin-left:4px; }.
+td.place { color:var(--muted, #7d8494); width:42px; font-family:var(--mono); text-align:right; }
+td.proj { min-width:180px; font-weight:600; }
+td.tracks { color:var(--cyan); font-size:12px; }
+.demoico { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:var(--muted, #7d8494); }
+.demoico .sym { width:16px; height:16px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; }
+.demoico.ok .sym { background:rgba(143,181,115,.16); color:var(--green); }
+.demoico.x .sym { background:var(--red-dim); color:var(--red); }
+.demoico.warn .sym { background:rgba(232,201,106,.14); color:var(--amber); }
+.bar { display:inline-block; position:relative; width:64px; height:5px; border-radius:3px; background:var(--raised); overflow:hidden; vertical-align:middle; }
+.bar .fill { position:absolute; left:0; top:0; bottom:0; border-radius:3px; }
+.cellbar { display:flex; align-items:center; gap:7px; }
+.cellbar .v { font-family:var(--mono); font-size:12.5px; font-weight:700; min-width:26px; text-align:right; }
+.strength { display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:12px; font-weight:700; padding:1px 7px; border-radius:5px; background:var(--raised); border:1px solid var(--line); }
+.strength .scale { color:var(--muted, #7d8494); font-weight:400; font-size:10px; }
+.strength.high { color:var(--cyan); border-color:rgba(0,200,255,.4); }
+.strength.med { color:var(--amber); border-color:rgba(232,201,106,.35); }
+.strength.low { color:var(--muted, #7d8494); }
+td.tx { width:110px; }
+.txchip { display:inline-flex; align-items:center; gap:5px; font-family:var(--mono); font-size:11px; color:var(--cyan); background:var(--cyan-dim); border:1px solid rgba(0,200,255,.3); border-radius:5px; padding:1px 7px; text-decoration:none; }
+.tx-empty { color:var(--muted, #7d8494); }
+td.verdict { color:var(--muted, #7d8494); font-size:12.5px; }
+</style></head><body>
+<h1>⚔ Hackathon Watch <span class="our">· NEXUS AiOS</span> <span style="color:var(--muted, #7d8494);font-size:13px">[preview · lang=en]</span></h1>
+<div class="sub">schema_v1 · generated 2026-11-03T20:09:56+00:00 · 95 projects · shared scores (en=ru) · numeric_mismatch=0</div>
+<div class="cards">
+  <div class="card"><div class="n">95</div><div class="l">Tracked</div></div>
+  <div class="card"><div class="n">92</div><div class="l">Live demos</div></div>
+  <div class="card"><div class="n">4</div><div class="l">High strength</div></div>
+  <div class="card"><div class="n">0</div><div class="l">Numeric mismatch (en vs ru)</div></div>
+  <div class="card"><div class="n">26</div><div class="l">NEXUS rank</div></div>
+</div>
+<table>
+<thead><tr><th>Place</th><th>Project</th><th>Tracks</th><th>Demo</th><th>WinProb</th><th>Strength</th><th>TxHash</th><th>Note (en)</th></tr></thead>
+<tbody>
+      <tr class="row">
+        <td class="place">1</td>
+        <td class="proj">Veto: on-chain spending firewall for AI agents on NEAR<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:86%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">8.6</span></span></td>
+        <td><span class="strength high">7<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Strong security agent track fit with practical on-chain control.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">2</td>
+        <td class="proj">Tollgate<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">agents · realworld</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:82%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">8.2</span></span></td>
+        <td><span class="strength high">7<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Polished real-world agent leveraging NEAR; promising hackathon entry.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">3</td>
+        <td class="proj">Tollgate<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:81%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">8.1</span></span></td>
+        <td><span class="strength high">7<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Competitive submission with practical security application on NEAR.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">4</td>
+        <td class="proj">x402-near<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents · realworld</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:79%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">7.9</span></span></td>
+        <td><span class="strength med">6<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising continuation, needs more technical depth.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">5</td>
+        <td class="proj">AgentGuard<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">privacy · business · security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:78%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">7.8</span></span></td>
+        <td><span class="strength med">6<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising agent security concept on NEAR.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">6</td>
+        <td class="proj">Werracle: Intra-Block AI Shield for NEAR Intents & Aurora EVM<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi · security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:77%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">7.7</span></span></td>
+        <td><span class="strength med">6<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising direction for intent security, needs stronger proof.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">7</td>
+        <td class="proj">Tidepool<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">open</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:75%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">7.5</span></span></td>
+        <td><span class="strength med">6<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising concept with working demo, NEAR depth unverified.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">8</td>
+        <td class="proj">AgentVault<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:73%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">7.3</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising agent project with working demo.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">9</td>
+        <td class="proj">Bolsillos<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · realworld · open</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:73%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">7.3</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising entry with practical demo, but needs deeper NEAR integration.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">10</td>
+        <td class="proj">NEAR FeeLens<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">thesis</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:73%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">7.3</span></span></td>
+        <td><span class="strength med">6<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Plausible idea, unclear implementation depth.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">11</td>
+        <td class="proj">NEAR Private OTC<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:73%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">7.3</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising concept, lacks visible technical implementation.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">12</td>
+        <td class="proj">PinPay<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">business · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:73%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">7.3</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising demo, unclear NEAR integration depth.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">13</td>
+        <td class="proj">Quittance<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi · privacy · realworld · open</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:73%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">7.3</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising concept, needs more concrete NEAR integration.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">14</td>
+        <td class="proj">Terra matcher<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:73%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">7.3</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising defi tool but needs more details</td>
+      </tr>
+      <tr class="row">
+        <td class="place">15</td>
+        <td class="proj">Black box: a verifiable flight recorder for an AI agent's money<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents · open</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:72%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">7.2</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising idea, lacks real demo or code.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">16</td>
+        <td class="proj">NEAR Books<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">thesis · open</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:72%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">7.2</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Competent entry with real demo, needs deeper NEAR integration</td>
+      </tr>
+      <tr class="row">
+        <td class="place">17</td>
+        <td class="proj">NEAR Intents Value Accrual Thesis<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">thesis</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:70%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">7.0</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Interesting value accrual analysis, needs implementation.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">18</td>
+        <td class="proj">Near Degen toolkit<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:70%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">7.0</span></span></td>
+        <td><span class="strength med">6<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Works, but depth uncertain; promising base.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">19</td>
+        <td class="proj">PrivatePay Agent<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">privacy · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:70%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">7.0</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Early-stage idea; needs stronger implementation proof.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">20</td>
+        <td class="proj">Bridle<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">business · security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:69%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.9</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising concept but lacks concrete NEAR usage.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">21</td>
+        <td class="proj">Deed<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">business · security · nfts</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:69%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.9</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising entry lacking clear NEAR integration evidence.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">22</td>
+        <td class="proj">HADES OMEGA — Multi-Agent Orchestration System<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">business · swarms · security</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:69%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.9</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising concept but needs deeper NEAR integration.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">23</td>
+        <td class="proj">Measure<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">privacy · security</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:69%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.9</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Reasonable entry, but NEAR integration needs clarification.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">24</td>
+        <td class="proj">Morrowseal<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">privacy · open</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:69%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.9</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising idea, lacks evidence of NEAR integration</td>
+      </tr>
+      <tr class="row">
+        <td class="place">25</td>
+        <td class="proj">NEAR Usage Thesis<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">thesis</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:69%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.9</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Good thesis with real NEAR usage, but lacks a working software implementation.</td>
+      </tr>
+      <tr class="row our">
+        <td class="place">26</td>
+        <td class="proj">NEXUS AiOS <span class='badge-our'>OUR</span><span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">swarms · security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:69%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.9</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising concept, but needs more concrete NEAR integration.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">27</td>
+        <td class="proj">Rootbound<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">swarms · security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:69%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.9</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Functional demo but unclear depth; track fit is partial.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">28</td>
+        <td class="proj">Agent Leash<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:68%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.8</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising concept, needs deeper NEAR integration and live proof.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">29</td>
+        <td class="proj">Thesis Agent<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:68%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.8</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Decent agent idea, but lacks clear NEAR integration.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">30</td>
+        <td class="proj">Veridom Pay<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">privacy · security · realworld · nfts</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:68%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.8</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Shows potential, needs stronger NEAR usage and security details</td>
+      </tr>
+      <tr class="row">
+        <td class="place">31</td>
+        <td class="proj">Workcell<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi · security</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:68%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.8</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising entry; needs repo/code proof for deeper scoring.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">32</td>
+        <td class="proj">near-thesis: NEAR on the evidence<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">thesis</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:68%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.8</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Conceptually strong for thesis track, needs more substance</td>
+      </tr>
+      <tr class="row">
+        <td class="place">33</td>
+        <td class="proj">Allowance<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">business · security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:67%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.7</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising concept but needs deeper technical validation.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">34</td>
+        <td class="proj">NEAR Growth Intelligence<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">thesis</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:67%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.7</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising thesis-track project with real demo, needs deeper NEAR integration.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">35</td>
+        <td class="proj">StarFloor: Orbital Market Center & Zero-Gravity Colocation<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi · open</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:66%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.6</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Space-themed DeFi idea, but NEAR usage is superficial.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">36</td>
+        <td class="proj">NEAR's agent economy, measured<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">thesis · agents · open</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:64%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.4</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising angle, needs deeper technical execution.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">37</td>
+        <td class="proj">NearGuard<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:64%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.4</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Needs more concrete NEAR implementation to stand out.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">38</td>
+        <td class="proj">Throughput Treasury<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">privacy · business · security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:63%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.3</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Early concept with unclear NEAR integration.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">39</td>
+        <td class="proj">Claw Guard: Signing Gate for AI Agents<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:62%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.2</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Interesting security angle, needs more substance.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">40</td>
+        <td class="proj">Flock<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">swarms · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:62%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.2</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Concept fits swarm track; implementation unclear and unproven.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">41</td>
+        <td class="proj">NDBOT<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi · memecoins · social · open</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:62%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.2</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Awaiting more details; potential but unproven.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">42</td>
+        <td class="proj">NEAR Investment Thesis: the evidence<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">thesis</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:62%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.2</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Interesting thesis, lacks technical depth and delivery.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">43</td>
+        <td class="proj">PayGuard<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:62%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.2</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Early-stage idea with minimal proof; needs concrete NEAR implementation.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">44</td>
+        <td class="proj">TEE Receipts<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">privacy · open</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:62%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.2</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Interesting idea, immature implementation, proof-of-concept only.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">45</td>
+        <td class="proj">Tune Up Research Desk<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">thesis · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:62%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.2</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Concept lacks concrete NEAR integration and working demo.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">46</td>
+        <td class="proj">ÁUREA CONTRACT FOR PRIVACY<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">privacy</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:62%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.2</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Concept-stage project, needs more implementation proof.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">47</td>
+        <td class="proj">AJO ON NEAR<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">realworld</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:61%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.1</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Needs more substance and demonstrated NEAR integration.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">48</td>
+        <td class="proj">AgentSig<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">business · security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:61%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.1</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Concept early-stage, needs concrete NEAR usage</td>
+      </tr>
+      <tr class="row">
+        <td class="place">49</td>
+        <td class="proj">Arkhe Guard<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:61%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.1</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Needs more detail to assess real NEAR usage.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">50</td>
+        <td class="proj">Guardrail<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">privacy · security · realworld · open</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:61%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.1</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Idea plausible but implementation maturity is low.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">51</td>
+        <td class="proj">Judge on NEAR<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">privacy · security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:61%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.1</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Needs more substance, but concept has potential.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">52</td>
+        <td class="proj">NEAR, on evidence<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">thesis</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:61%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.1</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Interesting thesis but lacks concrete implementation.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">53</td>
+        <td class="proj">Redline<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">privacy · security · realworld</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:61%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.1</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Early idea with potential, needs concrete NEAR usage</td>
+      </tr>
+      <tr class="row">
+        <td class="place">54</td>
+        <td class="proj">Settl<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi · realworld · open</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:61%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.1</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising but needs more technical evidence.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">55</td>
+        <td class="proj">TreasureHunt<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">games</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:61%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.1</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Conceptual pitch lacking technical substance; needs more details.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">56</td>
+        <td class="proj">dareskro<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">business · agents · realworld</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:61%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">6.1</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Needs more concrete NEAR integration and working product</td>
+      </tr>
+      <tr class="row">
+        <td class="place">57</td>
+        <td class="proj">IntentGuard<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:59%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.9</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Needs more technical substance to be competitive.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">58</td>
+        <td class="proj">Key proof<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:59%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.9</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Weak evidence overall; security track idea plausible but underdeveloped.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">59</td>
+        <td class="proj">PayPerCall on NEAR<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">business · agents · realworld</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:59%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.9</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Concept fits tracks but lacks verifiable implementation or live project.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">60</td>
+        <td class="proj">agent-pay<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:59%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.9</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Needs evidence of actual agent and security features.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">61</td>
+        <td class="proj">Kyrona<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:58%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.8</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Early stage; needs more evidence of NEAR usage.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">62</td>
+        <td class="proj">NEAR Agent Spend Guard<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">business · security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:58%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.8</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Concept plausible but far from implemented.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">63</td>
+        <td class="proj">Leash<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:57%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.7</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Substantive work missing; limited evidence of NEAR usage.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">64</td>
+        <td class="proj">Tollgate<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:56%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.6</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Weak evidence of implementation, speculative proposal.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">65</td>
+        <td class="proj">Agent Toll<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:55%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.5</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising concept, needs stronger NEAR integration and implementation.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">66</td>
+        <td class="proj">Greed Machine<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi · business · swarms · security · agents · memecoins</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:55%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.5</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Weak evidence; needs repo and on-chain proof.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">67</td>
+        <td class="proj">Kalfou Swap — Cross-Chain Desk<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:55%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.5</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Underdeveloped: needs repo and NEAR integration.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">68</td>
+        <td class="proj">Semilla1 Guard<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:55%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.5</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Idea seems promising but execution and NEAR ties are unproven.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">69</td>
+        <td class="proj">Settled<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents · realworld</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:55%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.5</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Potential idea, but lacks substance and NEAR integration.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">70</td>
+        <td class="proj">Tijar app<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">business</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:55%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.5</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Basic concept; needs more evidence of implementation.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">71</td>
+        <td class="proj">Agent Treasury<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi · business · security · agents · realworld</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:54%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.4</span></span></td>
+        <td><span class="strength low">2<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Concept-level entry lacking technical depth and NEAR integration.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">72</td>
+        <td class="proj">Hasp<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:54%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.4</span></span></td>
+        <td><span class="strength med">4<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising demo but lacks evidence of actual implementation.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">73</td>
+        <td class="proj">Jurat<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">privacy · realworld</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:54%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.4</span></span></td>
+        <td><span class="strength low">2<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Early-stage concept with insufficient proof of execution or NEAR usage.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">74</td>
+        <td class="proj">NEAR Thesis Scorecard<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">thesis</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:54%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.4</span></span></td>
+        <td><span class="strength low">2<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Underdeveloped idea, lacks evidence of real NEAR integration.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">75</td>
+        <td class="proj">PrivateDAO<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi · thesis · privacy · business · security · agents · realworld</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:54%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.4</span></span></td>
+        <td><span class="strength low">2<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Early concept, lacks substance and proof.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">76</td>
+        <td class="proj">Leash<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:52%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.2</span></span></td>
+        <td><span class="strength low">2<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Weak implementation, no concrete NEAR integration shown.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">77</td>
+        <td class="proj">Approval Moment<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:51%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.1</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Needs more concrete NEAR integration.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">78</td>
+        <td class="proj">HoldUp<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · realworld · open</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:50%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.0</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Limited information, low confidence in real functionality.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">79</td>
+        <td class="proj">SpendGuard AI<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">business · security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:50%;background:#00c8ff"></span></span><span class="v" style="color:#00c8ff">5.0</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Early-stage concept; needs concrete NEAR integration and working demo.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">80</td>
+        <td class="proj">Cobra on NEAR<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">agents · realworld</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:49%;background:#e8c96a"></span></span><span class="v" style="color:#e8c96a">4.9</span></span></td>
+        <td><span class="strength low">2<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Needs deeper validation of NEAR usage.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">81</td>
+        <td class="proj">NairaRails<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">realworld</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:49%;background:#e8c96a"></span></span><span class="v" style="color:#e8c96a">4.9</span></span></td>
+        <td><span class="strength low">2<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Pitch with minimal substance, needs real implementation.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">82</td>
+        <td class="proj">Payrein<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:49%;background:#e8c96a"></span></span><span class="v" style="color:#e8c96a">4.9</span></span></td>
+        <td><span class="strength low">2<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Early concept; lacks technical substance and implementation.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">83</td>
+        <td class="proj">ZEDEC PQOS aka. TIAMAT<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi · thesis · privacy · business · swarms · security · agents · realworld · open</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:49%;background:#e8c96a"></span></span><span class="v" style="color:#e8c96a">4.9</span></span></td>
+        <td><span class="strength low">2<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Early concept, minimal concrete NEAR usage or demo.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">84</td>
+        <td class="proj">LeashPay<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:48%;background:#e8c96a"></span></span><span class="v" style="color:#e8c96a">4.8</span></span></td>
+        <td><span class="strength low">1<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Idea unclear, lacks evidence of real product.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">85</td>
+        <td class="proj">VRX<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi · privacy · business · realworld · open</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:48%;background:#e8c96a"></span></span><span class="v" style="color:#e8c96a">4.8</span></span></td>
+        <td><span class="strength low">2<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Underdeveloped pitch with little technical or NEAR substance.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">86</td>
+        <td class="proj">Petty Cash<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">realworld · social</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:47%;background:#e8c96a"></span></span><span class="v" style="color:#e8c96a">4.7</span></span></td>
+        <td><span class="strength low">2<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Minimal details; likely early-stage concept.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">87</td>
+        <td class="proj">presign-guard for NEAR<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:47%;background:#e8c96a"></span></span><span class="v" style="color:#e8c96a">4.7</span></span></td>
+        <td><span class="strength low">2<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Submission lacks substance; NEAR usage unverifiable.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">88</td>
+        <td class="proj">DeadDrop<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">privacy · realworld</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:46%;background:#e8c96a"></span></span><span class="v" style="color:#e8c96a">4.6</span></span></td>
+        <td><span class="strength low">2<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Early-stage idea lacking proof of execution or impact.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">89</td>
+        <td class="proj">Sentinel<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:46%;background:#e8c96a"></span></span><span class="v" style="color:#e8c96a">4.6</span></span></td>
+        <td><span class="strength low">2<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Requires a repository and working NEAR integration.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">90</td>
+        <td class="proj">Tripwire<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:46%;background:#e8c96a"></span></span><span class="v" style="color:#e8c96a">4.6</span></span></td>
+        <td><span class="strength med">5<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Promising security agent concept, needs more NEAR depth</td>
+      </tr>
+      <tr class="row">
+        <td class="place">91</td>
+        <td class="proj">ByLaw<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:45%;background:#e8c96a"></span></span><span class="v" style="color:#e8c96a">4.5</span></span></td>
+        <td><span class="strength low">2<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Pitch-level entry; no visible NEAR integration or working demo.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">92</td>
+        <td class="proj">EarnScout<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">security · agents · open</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:44%;background:#e8c96a"></span></span><span class="v" style="color:#e8c96a">4.4</span></span></td>
+        <td><span class="strength low">2<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Idea promising but unproven, needs real implementation.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">93</td>
+        <td class="proj">Sidelot<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi · agents · realworld · memecoins</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:44%;background:#e8c96a"></span></span><span class="v" style="color:#e8c96a">4.4</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Insufficient information to assess real NEAR implementation.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">94</td>
+        <td class="proj">Loca<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">defi · business · swarms · security · agents</td>
+        <td><span class="demoico ok"><span class="sym">✓</span><span>real_demo</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:25%;background:#d9605a"></span></span><span class="v" style="color:#d9605a">2.5</span></span></td>
+        <td><span class="strength low">3<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Underdeveloped submission without implementation verification.</td>
+      </tr>
+      <tr class="row">
+        <td class="place">95</td>
+        <td class="proj">Pal<span class="src-chip llm">L</span><span class="ev-chip">mercury-3</span></td>
+        <td class="tracks">open</td>
+        <td><span class="demoico warn"><span class="sym">!</span><span>broken_link</span></span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:15%;background:#d9605a"></span></span><span class="v" style="color:#d9605a">1.5</span></span></td>
+        <td><span class="strength low">1<span class="scale">/10</span></span></td>
+        <td class="tx"><span class="tx-empty">&mdash;</span></td>
+        <td class="verdict">Incomplete submission with no accessible demo.</td>
+      </tr>
+</tbody>
+</table>
+<p style="margin-top:16px;color:var(--muted, #7d8494);font-size:11px">
+  WinProb = 0.40·maturity + 0.35·demo + 0.25·track breadth. Strength 0–10. H — heuristic estimate. ★OUR = NEXUS AiOS.
+  Re-run: cd D:/Temp/hackwatch &amp;&amp; python -m hackwatch
+</p>
+</body></html>
