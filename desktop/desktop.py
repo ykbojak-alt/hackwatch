@@ -80,9 +80,9 @@ def titlebar_js(port: int) -> str:
   const title = bar.querySelector('.hw-title');
   title.style.cssText = 'padding:0 14px;color:#7a8b9c;letter-spacing:.04em;';
   const controls = bar.querySelector('.hw-controls');
-  controls.style.cssText = 'display:flex;align-items:center;gap:8px;padding:0 14px;height:100%;';
+  controls.style.cssText = 'display:flex;align-items:center;gap:10px;padding:0 18px;height:100%;';
   const dotStyle =
-    'width:13px;height:13px;border-radius:50%;border:0;cursor:pointer;' +
+    'width:20px;height:20px;border-radius:50%;border:0;cursor:pointer;' +
     'display:flex;align-items:center;justify-content:center;padding:0;';
   const dotColors = {{'hw-min': '#febc2e', 'hw-max': '#28c840', 'hw-close': '#ff5f57'}};
   ['hw-min', 'hw-max', 'hw-close'].forEach(function (id) {{
@@ -90,7 +90,7 @@ def titlebar_js(port: int) -> str:
     const glyph = b.querySelector('span');
     b.style.cssText = dotStyle + 'background:' + dotColors[id] + ';';
     glyph.style.cssText =
-      'font-size:10px;line-height:1;color:rgba(0,0,0,.6);font-weight:700;' +
+      'font-size:13px;line-height:1;color:rgba(0,0,0,.6);font-weight:700;' +
       'opacity:0;transition:opacity .12s;pointer-events:none;';
     b.addEventListener('mouseenter', function () {{ glyph.style.opacity = '1'; }});
     b.addEventListener('mouseleave', function () {{ glyph.style.opacity = '0'; }});
