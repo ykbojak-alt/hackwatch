@@ -63,7 +63,7 @@ GATEWAY = (os.environ.get("NEXUSLINK_BASE")
            or os.environ.get("NEXUS_LINK_DEFAULT", ""))
 SLOT = (os.environ.get("NEXUSLINK_SLOT") or _GW_CONFIG.get("model")
         or _GW_CONFIG.get("slot") or "claude-sonnet-5")
-# key: env NEXUSLINK_KEY > config.json "api_key"/"key" > opencode.jsonc (deprecated local-dev fallback)
+# key: env NEXUSLINK_KEY > config.json "key" > opencode.jsonc (deprecated local-dev fallback)
 GATEWAY_KEY = os.environ.get("NEXUSLINK_KEY", "")
 TLS_INSECURE = os.environ.get("NEXUSLINK_INSECURE") == "1" or bool(_GW_CONFIG.get("tls_insecure"))
 
@@ -101,7 +101,7 @@ def load_key() -> str:
     if GATEWAY_KEY:
         log("key set (env NEXUSLINK_KEY)")
         return GATEWAY_KEY
-    k = _GW_CONFIG.get("key")
+    k = _GW_CONFIG.get("api_key") or _GW_CONFIG.get("key")
     if k:
         GATEWAY_KEY = k
         log("key set (config.json)")
@@ -666,43 +666,43 @@ def render_html(contract: dict, out: Path, lang: str = "en") -> None:
   --mono:ui-monospace,SFMono-Regular,Menlo,monospace; }}
 * {{ box-sizing:border-box; }}
 body {{ background:var(--bg); color:var(--fg); font:13.5px/1.5 ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif; margin:0; padding:24px 30px 40px; }}
-h1 {{ font-size:21px; margin:0 0 2px; }} h1 .our {{ color:var(--gold); }}
-.sub {{ color:var(--muted, #7d8494); font-size:12px; margin-bottom:20px; }}
+h1 {{ font-size:27.5px; margin:0 0 2px; }} h1 .our {{ color:var(--gold); }}
+.sub {{ color:var(--muted, #7d8494); font-size:15.5px; margin-bottom:20px; }}
 .cards {{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:16px; }}
 .card {{ background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:12px 14px; }}
-.card .n {{ font-size:24px; font-weight:700; font-family:var(--mono); }} .card .l {{ color:var(--muted, #7d8494); font-size:10.5px; }}
+.card .n {{ font-size:31px; font-weight:700; font-family:var(--mono); }} .card .l {{ color:var(--muted, #7d8494); font-size:13.5px; }}
 table {{ width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; }}
 th,td {{ text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); }}
-th {{ color:var(--muted, #7d8494); font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; background:#0e131c; }}
+th {{ color:var(--muted, #7d8494); font-size:13.5px; text-transform:uppercase; letter-spacing:.07em; background:#0e131c; }}
 tr.our td {{ background:linear-gradient(90deg, var(--gold-dim), transparent 38%); }}
 tr.our {{ box-shadow:inset 2px 0 0 var(--gold); }}
 tr.our .proj {{ color:var(--gold); }}
-.badge-our {{ display:inline-block; border:1px solid var(--gold); color:var(--gold); font-size:9.5px; font-weight:700; letter-spacing:.08em; padding:0 5px; border-radius:4px; margin-left:6px; }}
-.src-chip {{ display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.05em; padding:1px 6px; border-radius:4px; margin-left:6px; }}
+.badge-our {{ display:inline-block; border:1px solid var(--gold); color:var(--gold); font-size:12.5px; font-weight:700; letter-spacing:.08em; padding:0 5px; border-radius:4px; margin-left:6px; }}
+.src-chip {{ display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:.05em; padding:1px 6px; border-radius:4px; margin-left:6px; }}
 .src-chip.llm {{ color:var(--cyan); border:1px solid rgba(0,200,255,.45); background:var(--cyan-dim); }}
 .src-chip.heuristic {{ color:var(--muted, #7d8494); border:1px dashed var(--line2); opacity:.75; }}
-.ev-chip {{ display:inline-block; font-size:9.5px; color:var(--muted, #7d8494); border:1px solid var(--line); border-radius:4px; padding:1px 5px; margin-left:4px; }}.
+.ev-chip {{ display:inline-block; font-size:12.5px; color:var(--muted, #7d8494); border:1px solid var(--line); border-radius:4px; padding:1px 5px; margin-left:4px; }}.
 td.place {{ color:var(--muted, #7d8494); width:42px; font-family:var(--mono); text-align:right; }}
 td.proj {{ min-width:180px; font-weight:600; }}
-td.tracks {{ color:var(--cyan); font-size:12px; }}
-.demoico {{ display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:var(--muted, #7d8494); }}
-.demoico .sym {{ width:16px; height:16px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; }}
+td.tracks {{ color:var(--cyan); font-size:15.5px; }}
+.demoico {{ display:inline-flex; align-items:center; gap:5px; font-size:15px; color:var(--muted, #7d8494); }}
+.demoico .sym {{ width:16px; height:16px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:800; }}
 .demoico.ok .sym {{ background:rgba(143,181,115,.16); color:var(--green); }}
 .demoico.x .sym {{ background:var(--red-dim); color:var(--red); }}
 .demoico.warn .sym {{ background:rgba(232,201,106,.14); color:var(--amber); }}
 .bar {{ display:inline-block; position:relative; width:64px; height:5px; border-radius:3px; background:var(--raised); overflow:hidden; vertical-align:middle; }}
 .bar .fill {{ position:absolute; left:0; top:0; bottom:0; border-radius:3px; }}
 .cellbar {{ display:flex; align-items:center; gap:7px; }}
-.cellbar .v {{ font-family:var(--mono); font-size:12.5px; font-weight:700; min-width:26px; text-align:right; }}
-.strength {{ display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:12px; font-weight:700; padding:1px 7px; border-radius:5px; background:var(--raised); border:1px solid var(--line); }}
-.strength .scale {{ color:var(--muted, #7d8494); font-weight:400; font-size:10px; }}
+.cellbar .v {{ font-family:var(--mono); font-size:16px; font-weight:700; min-width:26px; text-align:right; }}
+.strength {{ display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:15.5px; font-weight:700; padding:1px 7px; border-radius:5px; background:var(--raised); border:1px solid var(--line); }}
+.strength .scale {{ color:var(--muted, #7d8494); font-weight:400; font-size:13px; }}
 .strength.high {{ color:var(--cyan); border-color:rgba(0,200,255,.4); }}
 .strength.med {{ color:var(--amber); border-color:rgba(232,201,106,.35); }}
 .strength.low {{ color:var(--muted, #7d8494); }}
 td.tx {{ width:110px; }}
-.txchip {{ display:inline-flex; align-items:center; gap:5px; font-family:var(--mono); font-size:11px; color:var(--cyan); background:var(--cyan-dim); border:1px solid rgba(0,200,255,.3); border-radius:5px; padding:1px 7px; text-decoration:none; }}
+.txchip {{ display:inline-flex; align-items:center; gap:5px; font-family:var(--mono); font-size:14.5px; color:var(--cyan); background:var(--cyan-dim); border:1px solid rgba(0,200,255,.3); border-radius:5px; padding:1px 7px; text-decoration:none; }}
 .tx-empty {{ color:var(--muted, #7d8494); }}
-td.verdict {{ color:var(--muted, #7d8494); font-size:12.5px; }}
+td.verdict {{ color:var(--muted, #7d8494); font-size:16px; }}
 </style></head><body>
 <h1>⚔ Hackathon Watch <span class="our">· NEXUS AiOS</span> <span style="color:var(--muted, #7d8494);font-size:13px">[preview · lang={lang}]</span></h1>
 <div class="sub">schema_v{SCHEMA_VERSION} · generated {contract['generated_at']} · {contract['source']['total_projects']} projects · shared scores (en=ru) · numeric_mismatch={total.get('numeric_mismatch',0)}</div>
