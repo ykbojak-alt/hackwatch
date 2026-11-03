@@ -103,31 +103,7 @@ def titlebar_js(port: int) -> str:
   bar.querySelector('#hw-max').addEventListener('click', function () {{ ctl('max'); }});
   closeBtn.addEventListener('click', function () {{ ctl('close'); }});
 
-  // Drag region (throttled to ~60Hz)
-  let dragging = false, lx = 0, ly = 0, pendX = 0, pendY = 0, sending = false;
-  bar.addEventListener('mousedown', function (e) {{
-    if (e.target.closest('.hw-controls')) return;
-    dragging = true; lx = e.screenX; ly = e.screenY;
-    e.preventDefault();
-  }});
-  window.addEventListener('mousemove', function (e) {{
-    if (!dragging) return;
-    pendX += e.screenX - lx; pendY += e.screenY - ly;
-    lx = e.screenX; ly = e.screenY;
-    if (!sending) {{
-      sending = true;
-      setTimeout(function () {{
-        sending = false;
-        if (pendX || pendY) {{
-          const dx = pendX, dy = pendY;
-          pendX = 0; pendY = 0;
-          ctl('move', dx, dy);
-        }}
-      }}, 16);
-    }}
-  }});
-  window.addEventListener('mouseup', function () {{ dragging = false; }});
-  bar.addEventListener('dblclick', function () {{ ctl('max'); }});
+bar.addEventListener('dblclick', function () {{ ctl('max'); }});
 }})();
 """
 
@@ -188,10 +164,6 @@ class CtrlHandler(SimpleHTTPRequestHandler):
                 self.window_holder.toggle_maximize()
             elif action == "close":
                 window.destroy()
-            elif action == "move":
-                dx = int(data.get("x") or 0)
-                dy = int(data.get("y") or 0)
-                window.move(window.x + dx, window.y + dy)
             else:
                 self._reply({"ok": False, "error": f"unknown action {action}"})
                 return
