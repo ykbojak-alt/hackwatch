@@ -20,6 +20,7 @@ import socket
 import sys
 import threading
 import time
+import urllib.parse
 import urllib.request
 import webbrowser
 from functools import partial
@@ -29,6 +30,24 @@ DIR = os.path.dirname(os.path.abspath(__file__))
 TITLE = "Hackathon Watch \u2014 NEXUS"
 BG = "#0b0f14"
 W, H = 1440, 900
+
+# \u0420\u0430\u0431\u043e\u0447\u0438\u0435 \u0434\u0430\u043d\u043d\u044b\u0435 (state/hackwatch.json) \u2014 \u0432\u043d\u0435 exe: %APPDATA%/Hackwatch.
+def app_data_dir() -> str:
+    base = os.environ.get("APPDATA") or os.path.join(os.path.expanduser("~"), "AppData", "Roaming")
+    data = os.path.join(base, "Hackwatch")
+    os.makedirs(data, exist_ok=True)
+    return data
+
+APP_DATA = app_data_dir()
+for _name in ("hackwatch.json", "hackwatch.en.json", "hackwatch.ru.json"):
+    _bundle = os.path.join(DIR, _name)
+    _app = os.path.join(APP_DATA, _name)
+    if os.path.exists(_bundle) and not os.path.exists(_app):
+        try:
+            import shutil
+            shutil.copy2(_bundle, _app)
+        except Exception:
+            pass
 
 # ---------------------------------------------------------------------------
 # Injected titlebar (runtime only; hackwatch.html left untouched)
@@ -48,9 +67,9 @@ def titlebar_js(port: int) -> str:
   bar.innerHTML =
     '<span class="hw-title">\u2694 Hackathon Watch \u00b7 NEXUS</span>' +
     '<div class="hw-controls">' +
-    '  <button id="hw-min" title="Minimize">\u2500\u2500</button>' +
-    '  <button id="hw-max" title="Maximize / Restore">\u25A2</button>' +
-    '  <button id="hw-close" title="Close">\u2715</button>' +
+    '  <button id="hw-min" title="Minimize"><span>–</span></button>' +
+    '  <button id="hw-max" title="Maximize / Restore"><span>+</span></button>' +
+    '  <button id="hw-close" title="Close"><span>×</span></button>' +
     '</div>';
   bar.style.cssText =
     'position:fixed;top:0;left:0;right:0;height:38px;z-index:2147483647;' +
@@ -61,23 +80,22 @@ def titlebar_js(port: int) -> str:
   const title = bar.querySelector('.hw-title');
   title.style.cssText = 'padding:0 14px;color:#7a8b9c;letter-spacing:.04em;';
   const controls = bar.querySelector('.hw-controls');
-  controls.style.cssText = 'display:flex;height:100%;';
+  controls.style.cssText = 'display:flex;align-items:center;gap:8px;padding:0 14px;height:100%;';
+  const dotStyle =
+    'width:13px;height:13px;border-radius:50%;border:0;cursor:pointer;' +
+    'display:flex;align-items:center;justify-content:center;padding:0;';
+  const dotColors = {{'hw-min': '#febc2e', 'hw-max': '#28c840', 'hw-close': '#ff5f57'}};
   ['hw-min', 'hw-max', 'hw-close'].forEach(function (id) {{
     const b = bar.querySelector('#' + id);
-    b.style.cssText =
-      'width:46px;height:100%;border:0;background:transparent;cursor:pointer;' +
-      'color:#d7e0ea;font-size:12px;line-height:1;display:flex;' +
-      'align-items:center;justify-content:center;';
-    b.addEventListener('mouseenter', function () {{ b.style.background = '#1e2a36'; }});
-    b.addEventListener('mouseleave', function () {{ b.style.background = 'transparent'; }});
+    const glyph = b.querySelector('span');
+    b.style.cssText = dotStyle + 'background:' + dotColors[id] + ';';
+    glyph.style.cssText =
+      'font-size:10px;line-height:1;color:rgba(0,0,0,.6);font-weight:700;' +
+      'opacity:0;transition:opacity .12s;pointer-events:none;';
+    b.addEventListener('mouseenter', function () {{ glyph.style.opacity = '1'; }});
+    b.addEventListener('mouseleave', function () {{ glyph.style.opacity = '0'; }});
   }});
   const closeBtn = bar.querySelector('#hw-close');
-  closeBtn.addEventListener('mouseenter', function () {{
-    closeBtn.style.background = '#e81123'; closeBtn.style.color = '#fff';
-  }});
-  closeBtn.addEventListener('mouseleave', function () {{
-    closeBtn.style.background = 'transparent'; closeBtn.style.color = '#d7e0ea';
-  }});
   document.body.appendChild(bar);
   document.body.classList.add('hw-desktop');
 
@@ -129,6 +147,22 @@ class CtrlHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, window_holder=None, **kwargs):
         self.window_holder = window_holder
         super().__init__(*args, **kwargs)
+
+    def translate_path(self, path):
+        # Данные (hackwatch*.json) живут в APP_DATA, не в bundled-каталоге.
+        # Basename без query-строки (UI-фетч с cache-bust ?t=...).
+        path = urllib.parse.urlparse(path).path
+        name = os.path.basename(path)
+        if name.startswith("hackwatch") and name.endswith(".json"):
+            return os.path.join(APP_DATA, name)
+        return super().translate_path(path)
+
+    def do_GET(self):
+        if self.path.rstrip("/") == "/favicon.ico":
+            self.send_response(204)
+            self.end_headers()
+            return
+        return super().do_GET()
 
     def log_message(self, fmt, *args):  # silence request logging
         pass

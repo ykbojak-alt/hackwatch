@@ -41,48 +41,49 @@ OUR_ID = "f206fa10-94e3-4537-a8e6-912a712697a9"
 OUR_NAME = "NEXUS AiOS"
 
 BASE_DIR = Path(__file__).resolve().parent
-STATE_FILE = BASE_DIR / "state.json"
-HTML_OUT = BASE_DIR / "hackwatch.html"
-JSON_OUT = Path(os.environ.get("HACKWATCH_JSON", str(BASE_DIR / "hackwatch.json")))
+# Рабочие данные — вне bundled-каталога: %APPDATA%/Hackwatch при сборке exe.
+DATA_DIR = Path(os.environ.get("HACKWATCH_STATE_DIR", str(BASE_DIR)))
+CONFIG_FILE = BASE_DIR / "config.json"
+STATE_FILE = DATA_DIR / "state.json"
+HTML_OUT = DATA_DIR / "hackwatch.html"
+JSON_OUT = Path(os.environ.get("HACKWATCH_JSON", str(DATA_DIR / "hackwatch.json")))
 
-CTX = ssl.create_default_context()
-CTX.check_hostname = False
-CTX.verify_mode = ssl.CERT_NONE
-
-# ---------- provider config (endpoint + model + key via config/env) ----------
-# Приоритет: config.json (рядом с ядром) > config.example.json > env > дефолт.
-# Публичный шаблон config.example.json имеет пустые поля; пользователь
-# редактирует config.json (см. README).
-GATEWAY_DEFAULT = "https://2.27.5.234.nip.io:4435/v1"
-GATEWAY = os.environ.get("NEXUSLINK_BASE", GATEWAY_DEFAULT)
-SLOT = os.environ.get("NEXUSLINK_SLOT", "claude-sonnet-5")
-GATEWAY_KEY = os.environ.get("NEXUSLINK_KEY", "")  # in-repo: empty; user supplies
-
-
-def _config_file() -> Path | None:
-    for name in ("config.json", "config.example.json"):
-        p = BASE_DIR / name
-        if p.exists():
-            return p
-    return None
-
-
-def load_provider_config() -> None:
-    """Читает provider из config.json/config.example.json; не перекрывает env."""
-    global GATEWAY, SLOT, GATEWAY_KEY
-    cfg = _config_file()
-    if cfg is None:
-        return
+# ---------- provider config (endpoint + model + key: env > config.json > opencode[deprecated]) ----------
+# TLS: verify ON by default. Self-signed local gateways opt in with
+# NEXUSLINK_INSECURE=1 (or config.json {"tls_insecure": true}) — never silently off.
+_GW_CONFIG = {}
+if CONFIG_FILE.exists():
     try:
-        j = json.loads(cfg.read_text(encoding="utf-8"))
-    except Exception:
-        return
-    if not os.environ.get("NEXUSLINK_BASE") and j.get("provider_endpoint"):
-        GATEWAY = j["provider_endpoint"].rstrip("/")
-    if not os.environ.get("NEXUSLINK_SLOT") and j.get("model"):
-        SLOT = j["model"]
-    if not GATEWAY_KEY and j.get("api_key"):
-        GATEWAY_KEY = j["api_key"]
+        _GW_CONFIG = json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        log("WARN: config.json corrupt — ignoring")
+GATEWAY = (os.environ.get("NEXUSLINK_BASE")
+           or _GW_CONFIG.get("provider_endpoint")
+           or _GW_CONFIG.get("gateway")
+           or os.environ.get("NEXUS_LINK_DEFAULT", ""))
+SLOT = (os.environ.get("NEXUSLINK_SLOT") or _GW_CONFIG.get("model")
+        or _GW_CONFIG.get("slot") or "claude-sonnet-5")
+# key: env NEXUSLINK_KEY > config.json "api_key"/"key" > opencode.jsonc (deprecated local-dev fallback)
+GATEWAY_KEY = os.environ.get("NEXUSLINK_KEY", "")
+TLS_INSECURE = os.environ.get("NEXUSLINK_INSECURE") == "1" or bool(_GW_CONFIG.get("tls_insecure"))
+
+
+def _build_ctx() -> ssl.SSLContext:
+    ctx = ssl.create_default_context()
+    ca = os.environ.get("NEXUSLINK_CA_BUNDLE") or _GW_CONFIG.get("ca_bundle")
+    if ca:
+        try:
+            ctx.load_verify_locations(ca)
+        except Exception as e:
+            log(f"WARN: ca_bundle {ca!r} failed: {e}")
+    if TLS_INSECURE:
+        log("WARN: NEXUSLINK_INSECURE — TLS verification DISABLED (self-signed gateway)")
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+    return ctx
+
+
+CTX = _build_ctx()
 
 SCHEMA_VERSION = 1
 CJK = re.compile(r"[\u4e00-\u9fff]")
@@ -94,10 +95,18 @@ def log(*a) -> None:
 
 
 def load_key() -> str:
-    """NEXUSLINK_KEY, иначе scoped-ключ из opencode.jsonc (local dev only)."""
+    """key order: env NEXUSLINK_KEY > config.json > opencode.jsonc (deprecated).
+    Logs only 'key set' — never the value or tail."""
     global GATEWAY_KEY
     if GATEWAY_KEY:
+        log("key set (env NEXUSLINK_KEY)")
         return GATEWAY_KEY
+    k = _GW_CONFIG.get("key")
+    if k:
+        GATEWAY_KEY = k
+        log("key set (config.json)")
+        return k
+    # deprecated local-dev fallback
     for cand in (
         Path.home() / ".config" / "opencode" / "opencode.jsonc",
         Path.home() / ".config" / "opencode" / "opencode.json",
@@ -107,7 +116,7 @@ def load_key() -> str:
                 j = json.loads(cand.read_text(encoding="utf-8"))
                 k = j["provider"]["nexus"]["options"]["apiKey"]
                 GATEWAY_KEY = k
-                log(f"key loaded from {cand.name} (nlk-…{k[-4:]})")
+                log(f"WARN: DEPRECATED key fallback via {cand.name} — set NEXUSLINK_KEY or config.json")
                 return k
             except Exception:
                 pass
@@ -297,9 +306,9 @@ def llm_analyze(projects: list[dict]) -> dict[str, dict]:
         prompt = prompt.replace("{demo_live}", str(p.get("_demo_live", False)))
         prompt = prompt.replace("{site_http}", str(p.get("_site_http", "")))
         body = json.dumps({
-            "model": f"nexus/{SLOT}",
+            "model": SLOT,
             "messages": [{"role": "user", "content": prompt}],
-            "max_tokens": 900,
+            "max_tokens": int(os.environ.get("HACKWATCH_MAX_TOKENS", "4096")),
             "temperature": 0.1,
         }).encode()
         url = f"{GATEWAY}/chat/completions"
@@ -309,6 +318,7 @@ def llm_analyze(projects: list[dict]) -> dict[str, dict]:
                 req = urllib.request.Request(
                     url, data=body,
                     headers={"Content-Type": "application/json",
+                             "Authorization": f"Bearer {GATEWAY_KEY}",
                              "x-api-key": GATEWAY_KEY, "User-Agent": "hackwatch"},
                     method="POST",
                 )
@@ -353,12 +363,13 @@ def _coerce_dual(project: dict, obj: dict, raw_model: str) -> dict:
 
     en = obj.get("en", {}) or {}
     ru = obj.get("ru", {}) or {}
+    cjk_fixed = False
     # CJK guard on the ru branch
     ru_has_cjk = any(CJK.search(str(v)) for v in ru.values() if isinstance(v, str))
     if ru_has_cjk:
         log(f"  CJK detected in ru branch of {project.get('project_name')} — re-translating from en")
         ru = _translate_ru_from_en(en, scores)
-        ru["_cjk_fixed"] = True
+        cjk_fixed = True
     rec = {
         "id": project["id"],
         "scores": scores,
@@ -372,6 +383,8 @@ def _coerce_dual(project: dict, obj: dict, raw_model: str) -> dict:
             "demo_note": str(ru.get("demo_note", "")),
             "verdict": str(ru.get("verdict", "")),
         },
+        # flag survives into the record so the CJK fix is reportable downstream
+        "_cjk_fixed": cjk_fixed,
         "evaluator": raw_model,
         "source": f"nexus/{raw_model}",
     }
@@ -554,6 +567,8 @@ def build_contract(rows: list[dict], total_reported: int | None, new_count: int,
         "lang_coverage": lang_map,
         # shared-scores design guarantees en/ru numeric parity; kept as a hard 0
         "numeric_mismatch": 0,
+        # count records where the CJK-guard fired (visible in the record via _cjk_fixed)
+        "cjk_fixed_count": sum(1 for r in rows if r.get("analysis", {}).get("_cjk_fixed")),
     }
     return {
         "schema_version": SCHEMA_VERSION,
@@ -592,83 +607,119 @@ def sort_rows(rows: list[dict]) -> None:
 
 # ---------- 7. HTML preview ----------
 
+def demo_icon(asmt: str) -> str:
+    sym = {"real_demo": ("✓", "ok"), "video": ("▶", "ok"), "docs_only": ("◈", "mid"),
+           "x_post": ("✕", "x"), "broken_link": ("!", "warn"), "unavailable": ("!", "warn")}
+    s, cls = sym.get(asmt, ("?", "warn"))
+    return f'<span class="sym">{s}</span><span>{asmt or "?"}</span>'
+
 def render_html(contract: dict, out: Path, lang: str = "en") -> None:
     total = contract["stats"]
     rows_html = []
     for r in contract["ranking"]:
-        sc = r["analysis"]["scores"]
-        an = r["analysis"].get(lang) or r["analysis"].get("en") or {}
+        an = r["analysis"]
+        sc = an.get("scores") or {}
+        cur = an.get(lang) or an.get("en") or {}
         is_our = r["is_ours"]
         cls = "row our" if is_our else "row"
-        badge = " <span class='badge'>OUR</span>" if is_our else ""
-        demo_cls = {"real_demo": "ok", "video": "ok", "docs_only": "mid"}.get(sc.get("demo_assessment"), "bad")
-        strength = sc.get("strength", 0)
+        badge = " <span class='badge-our'>OUR</span>" if is_our else ""
+        src = an.get("evaluator") or cur.get("source") or "heuristic"
+        src_cls = "heuristic" if src == "heuristic" else "llm"
+        src_lbl = "H" if src == "heuristic" else "L"
+        ev_chip = "" if src == "heuristic" else (f'<span class="ev-chip">{src.replace("nexus/", "")}</span>')
+        demo_cls = {"real_demo": "ok", "video": "ok", "docs_only": "mid",
+                    "x_post": "x", "broken_link": "warn", "unavailable": "warn"}.get(
+            sc.get("demo_assessment") or cur.get("demo_assessment"), "warn")
+        strength = sc.get("strength", cur.get("threat", 0)) or 0
         t_cls = "high" if strength >= 7 else ("med" if strength >= 4 else "low")
-        t_lbl = {"high": "HIGH", "med": "MED", "low": "LOW"}[t_cls]
-        verdict = an.get("verdict", "")
-        if an.get("_cjk_fixed"):
-            verdict = "RU EN-fallback: " + (r["analysis"]["en"].get("verdict", ""))
+        wp = r["score"]["win_prob"]
+        wp_color = "#00c8ff" if wp >= 5 else ("#e8c96a" if wp >= 3.5 else "#d9605a")
+        verdict = cur.get("verdict", "")
+        tx = (r.get("tx") or {}).get("hash") or r.get("tx_hash") or r.get("onchain_tx")
+        tx_html = ""
+        if tx:
+            base = r.get("tx_explorer") or "https://testnet.nearblocks.io/txns/"
+            href = base.replace("{tx}", tx) if "{tx}" in base else base + tx
+            tx_html = (f'<td class="tx"><a class="txchip" href="{href}" target="_blank" '
+                       f'rel="noopener" title="{tx}">{tx[:10]}&#8599;</a></td>')
+        else:
+            tx_html = '<td class="tx"><span class="tx-empty">&mdash;</span></td>'
         rows_html.append(f"""
       <tr class="{cls}">
         <td class="place">{r['rank']}</td>
-        <td class="proj">{r['project_name']}{badge}</td>
+        <td class="proj">{r['project_name']}{badge}<span class="src-chip {src_cls}">{src_lbl}</span>{ev_chip}</td>
         <td class="tracks">{' · '.join(r['tracks']) or '—'}</td>
-        <td><span class="demo {demo_cls}">{sc.get('demo_assessment','?')}</span></td>
-        <td class="num">{r['score']['win_prob']}</td>
-        <td><span class="strength {t_cls}">{t_lbl}</span> {an.get('rationale','')[:60]}</td>
-        <td class="verdict">{verdict[:120]}</td>
+        <td><span class="demoico {demo_cls}">{demo_icon(sc.get('demo_assessment') or cur.get('demo_assessment') or '?')}</span></td>
+        <td><span class="cellbar"><span class="bar"><span class="fill" style="width:{wp*10:.0f}%;background:{wp_color}"></span></span><span class="v" style="color:{wp_color}">{wp}</span></span></td>
+        <td><span class="strength {t_cls}">{strength}<span class="scale">/10</span></span></td>
+        {tx_html}
+        <td class="verdict">{verdict[:160]}</td>
       </tr>""")
     html = f"""<!doctype html>
 <html lang="{lang}"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hackathon Watch — NEXUS AiOS</title>
 <style>
-:root {{ --bg:#0b0f14; --panel:#111821; --line:#1e2a36; --fg:#d7e0ea; --dim:#7a8b9c;
-  --hi:#ffd34d; --ok:#4ade80; --mid:#facc15; --bad:#f87171; --hi2:#7aa2f7; }}
+:root {{ --bg:#0b0d11; --panel:#10131a; --raised:#161a22; --line:#232833; --line2:#2d3340;
+  --fg:#e9e4d6; --cyan:#00c8ff; --gold:#d4af37; --red:#d9605a; --amber:#e8c96a; --green:#8fb573;
+  --red-dim:rgba(217,96,90,.14); --cyan-dim:rgba(0,200,255,.12); --gold-dim:rgba(212,175,55,.10);
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace; }}
 * {{ box-sizing:border-box; }}
-body {{ background:var(--bg); color:var(--fg); font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; margin:0; padding:24px; }}
-h1 {{ font-size:20px; margin:0 0 4px; color:#fff; }} h1 .our {{ color:var(--hi); }}
-.sub {{ color:var(--dim); font-size:12px; margin-bottom:20px; }}
-.cards {{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:20px; }}
-.card {{ background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:14px; }}
-.card .n {{ font-size:26px; color:#fff; }} .card .l {{ color:var(--dim); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }}
-table {{ width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line); border-radius:8px; overflow:hidden; }}
+body {{ background:var(--bg); color:var(--fg); font:13.5px/1.5 ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif; margin:0; padding:24px 30px 40px; }}
+h1 {{ font-size:21px; margin:0 0 2px; }} h1 .our {{ color:var(--gold); }}
+.sub {{ color:var(--muted, #7d8494); font-size:12px; margin-bottom:20px; }}
+.cards {{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:16px; }}
+.card {{ background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:12px 14px; }}
+.card .n {{ font-size:24px; font-weight:700; font-family:var(--mono); }} .card .l {{ color:var(--muted, #7d8494); font-size:10.5px; }}
+table {{ width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; }}
 th,td {{ text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); }}
-th {{ color:var(--dim); font-size:11px; text-transform:uppercase; letter-spacing:.08em; background:#0d141d; }}
-tr.our td {{ background:rgba(255,211,77,.09); border-left:3px solid var(--hi); }}
-tr.our .proj {{ color:var(--hi); font-weight:700; }}
-.badge {{ background:var(--hi); color:#0b0f14; font-size:10px; padding:1px 6px; border-radius:3px; font-weight:800; }}
-td.place {{ color:var(--dim); width:36px; }}
-td.proj {{ min-width:150px; font-weight:600; }}
-td.tracks {{ color:var(--hi2); font-size:12px; }}
-td.num {{ width:70px; font-weight:700; color:var(--hi); }}
-td.verdict {{ color:var(--dim); font-size:12px; }}
-.demo {{ padding:2px 8px; border-radius:4px; font-size:11px; }}
-.demo.ok {{ background:rgba(74,222,128,.15); color:var(--ok); }}
-.demo.mid {{ background:rgba(250,204,21,.15); color:var(--mid); }}
-.demo.bad {{ background:rgba(248,113,113,.15); color:var(--bad); }}
-.threat {{ padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700; }}
-.threat.high {{ background:rgba(248,113,113,.2); color:var(--bad); }}
-.threat.med {{ background:rgba(250,204,21,.15); color:var(--mid); }}
-.threat.low {{ background:rgba(122,163,247,.15); color:var(--hi2); }}
+th {{ color:var(--muted, #7d8494); font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; background:#0e131c; }}
+tr.our td {{ background:linear-gradient(90deg, var(--gold-dim), transparent 38%); }}
+tr.our {{ box-shadow:inset 2px 0 0 var(--gold); }}
+tr.our .proj {{ color:var(--gold); }}
+.badge-our {{ display:inline-block; border:1px solid var(--gold); color:var(--gold); font-size:9.5px; font-weight:700; letter-spacing:.08em; padding:0 5px; border-radius:4px; margin-left:6px; }}
+.src-chip {{ display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.05em; padding:1px 6px; border-radius:4px; margin-left:6px; }}
+.src-chip.llm {{ color:var(--cyan); border:1px solid rgba(0,200,255,.45); background:var(--cyan-dim); }}
+.src-chip.heuristic {{ color:var(--muted, #7d8494); border:1px dashed var(--line2); opacity:.75; }}
+.ev-chip {{ display:inline-block; font-size:9.5px; color:var(--muted, #7d8494); border:1px solid var(--line); border-radius:4px; padding:1px 5px; margin-left:4px; }}.
+td.place {{ color:var(--muted, #7d8494); width:42px; font-family:var(--mono); text-align:right; }}
+td.proj {{ min-width:180px; font-weight:600; }}
+td.tracks {{ color:var(--cyan); font-size:12px; }}
+.demoico {{ display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:var(--muted, #7d8494); }}
+.demoico .sym {{ width:16px; height:16px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; }}
+.demoico.ok .sym {{ background:rgba(143,181,115,.16); color:var(--green); }}
+.demoico.x .sym {{ background:var(--red-dim); color:var(--red); }}
+.demoico.warn .sym {{ background:rgba(232,201,106,.14); color:var(--amber); }}
+.bar {{ display:inline-block; position:relative; width:64px; height:5px; border-radius:3px; background:var(--raised); overflow:hidden; vertical-align:middle; }}
+.bar .fill {{ position:absolute; left:0; top:0; bottom:0; border-radius:3px; }}
+.cellbar {{ display:flex; align-items:center; gap:7px; }}
+.cellbar .v {{ font-family:var(--mono); font-size:12.5px; font-weight:700; min-width:26px; text-align:right; }}
+.strength {{ display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:12px; font-weight:700; padding:1px 7px; border-radius:5px; background:var(--raised); border:1px solid var(--line); }}
+.strength .scale {{ color:var(--muted, #7d8494); font-weight:400; font-size:10px; }}
+.strength.high {{ color:var(--cyan); border-color:rgba(0,200,255,.4); }}
+.strength.med {{ color:var(--amber); border-color:rgba(232,201,106,.35); }}
+.strength.low {{ color:var(--muted, #7d8494); }}
+td.tx {{ width:110px; }}
+.txchip {{ display:inline-flex; align-items:center; gap:5px; font-family:var(--mono); font-size:11px; color:var(--cyan); background:var(--cyan-dim); border:1px solid rgba(0,200,255,.3); border-radius:5px; padding:1px 7px; text-decoration:none; }}
+.tx-empty {{ color:var(--muted, #7d8494); }}
+td.verdict {{ color:var(--muted, #7d8494); font-size:12.5px; }}
 </style></head><body>
-<h1>⚔ Hackathon Watch <span class="our">· NEXUS AiOS</span> <span style="color:var(--dim);font-size:13px">[preview · lang={lang}]</span></h1>
+<h1>⚔ Hackathon Watch <span class="our">· NEXUS AiOS</span> <span style="color:var(--muted, #7d8494);font-size:13px">[preview · lang={lang}]</span></h1>
 <div class="sub">schema_v{SCHEMA_VERSION} · generated {contract['generated_at']} · {contract['source']['total_projects']} projects · shared scores (en=ru) · numeric_mismatch={total.get('numeric_mismatch',0)}</div>
 <div class="cards">
   <div class="card"><div class="n">{contract['source']['total_projects']}</div><div class="l">Tracked</div></div>
   <div class="card"><div class="n">{total['live_demos']}</div><div class="l">Live demos</div></div>
-  <div class="card"><div class="n">{total['high_threat']}</div><div class="l">High threat</div></div>
+  <div class="card"><div class="n">{total['high_strength']}</div><div class="l">High strength</div></div>
   <div class="card"><div class="n">{total.get('numeric_mismatch',0)}</div><div class="l">Numeric mismatch (en vs ru)</div></div>
   <div class="card"><div class="n">{(contract['our_project'].get('rank') or 0)}</div><div class="l">NEXUS rank</div></div>
 </div>
 <table>
-<thead><tr><th>Place</th><th>Project</th><th>Tracks</th><th>Demo</th><th>WinProb</th><th>Threat</th><th>Note ({lang})</th></tr></thead>
+<thead><tr><th>Place</th><th>Project</th><th>Tracks</th><th>Demo</th><th>WinProb</th><th>Strength</th><th>TxHash</th><th>Note ({lang})</th></tr></thead>
 <tbody>{''.join(rows_html)}
 </tbody>
 </table>
-<p style="margin-top:16px;color:var(--dim);font-size:11px">
-  Shared scores (maturity/threat/demo/track_fit) are ONE copy — en and ru tabs show identical numbers.
-  WinProb = 0.40·maturity + 0.35·demo + 0.25·track breadth. ★OUR = NEXUS AiOS.
+<p style="margin-top:16px;color:var(--muted, #7d8494);font-size:11px">
+  WinProb = 0.40·maturity + 0.35·demo + 0.25·track breadth. Strength 0–10. H — heuristic estimate. ★OUR = NEXUS AiOS.
   Re-run: cd D:/Temp/hackwatch &amp;&amp; python -m hackwatch
 </p>
 </body></html>
@@ -683,7 +734,7 @@ def export_lang(contract: dict, lang: str) -> Path:
     """hackwatch.<lang>.json: ranking[].analysis is flat single-lang with shared scores.
     UI switcher: analysis.scores.* (shared) + analysis.<lang>.* (text).
     """
-    out = BASE_DIR / f"hackwatch.{lang}.json"
+    out = DATA_DIR / f"hackwatch.{lang}.json"
     out_contract = json.loads(json.dumps(contract))
     for r in out_contract["ranking"]:
         an = r["analysis"]
@@ -703,10 +754,12 @@ def export_lang(contract: dict, lang: str) -> Path:
 
 def main() -> int:
     t0 = time.time()
-    load_provider_config()
     lang = "en"
     reparse = False
     export_langs: list[str] = []
+    publish = False
+    publish_dry = False
+    top_n = 20
     args = sys.argv[1:]
     i = 0
     while i < len(args):
@@ -722,10 +775,24 @@ def main() -> int:
             v = args[i + 1].lower()
             export_langs = ["en", "ru"] if v == "all" else [v]
             i += 2
+        elif a == "--publish-scores":
+            publish = True
+            i += 1
+        elif a == "--publish-dry":
+            publish = True
+            publish_dry = True
+            i += 1
+        elif a == "--top-n" and i + 1 < len(args):
+            try:
+                top_n = max(1, int(args[i + 1]))
+            except ValueError:
+                log(f"WARN: bad --top-n {args[i+1]!r}, default 20")
+            i += 2
         else:
             i += 1
 
-    log(f"Hackathon Watch core starting (reparse={reparse}, export={export_langs or 'none'})")
+    log(f"Hackathon Watch core starting (reparse={reparse}, export={export_langs or 'none'}, "
+        f"publish={'dry' if publish_dry else ('on' if publish else 'off')}, top_n={top_n})")
     load_key()
 
     # 1. catalog
@@ -794,6 +861,13 @@ def main() -> int:
         log(f"  {r['rank']:>2}. {r['project_name']:<30} wp={r['score']['win_prob']:>5} "
             f"mat={sc.get('maturity'):>2} threat={sc.get('threat'):>2} demo={sc.get('demo_assessment')}{mark}")
     log(f"OUR NEXUS AiOS: rank #{up['rank']}/{len(rows)}, win_prob={up['win_prob']}")
+
+    # 7. on-chain publish (--publish-scores): топ-N → set_score; TxHash → analysis.tx
+    if publish:
+        import publish_scores
+        rc = publish_scores.run_publish(contract, dry=publish_dry, top_n=top_n)
+        if rc != 0:
+            return rc
     return 0
 
 

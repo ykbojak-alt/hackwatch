@@ -4,77 +4,172 @@
 <title>Hackathon Watch — NEXUS AiOS</title>
 <style>
 :root {
-  --bg:#070b11; --bg2:#0c121b; --panel:#0f1620; --panel2:#131c29;
-  --line:#1c2938; --line2:#24364a;
-  --fg:#d9e2ee; --dim:#71869c; --faint:#4d6075;
-  --hi:#ffd34d; --ok:#4ade80; --mid:#facc15; --bad:#f87171; --hi2:#7aa2f7;
+  --bg:#0b0d11; --panel:#10131a; --raised:#161a22; --hover:#1c212b; --line:#232833; --line2:#2d3340;
+  --fg:#e9e4d6; --on:#0b0d11;
+  --cyan:#00c8ff; --gold:#d4af37; --red:#d9605a; --amber:#e8c96a; --green:#8fb573;
+  --red-dim:rgba(217,96,90,.14); --cyan-dim:rgba(0,200,255,.12); --gold-dim:rgba(212,175,55,.10);
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
 }
 * { box-sizing:border-box; }
+html { color-scheme:dark; }
 body {
-  margin:0; padding:28px 32px 40px;
+  margin:0; padding:24px 30px 40px;
   color:var(--fg); font-family:var(--sans); font-size:13.5px; line-height:1.5;
   background:
-    radial-gradient(1100px 480px at 50% -140px, rgba(122,163,247,.10), transparent 65%),
-    radial-gradient(900px 420px at 85% -100px, rgba(255,211,77,.05), transparent 60%),
+    radial-gradient(1100px 500px at 50% -150px, rgba(0,200,255,.07), transparent 60%),
     var(--bg);
 }
-h1 { font-size:22px; margin:0 0 2px; letter-spacing:.02em; }
-h1 .our { color:var(--hi); }
-.sub { color:var(--dim); font-size:12px; margin:0 0 22px; }
-.langsw { position:absolute; top:26px; right:32px; display:flex; gap:4px; z-index:5; }
-.langsw button { background:var(--panel2); color:var(--dim); border:1px solid var(--line2); border-radius:6px; padding:5px 12px; font:inherit; font-size:12px; cursor:pointer; }
-.langsw button.on { color:var(--hi); border-color:var(--hi); box-shadow:0 0 10px rgba(255,211,77,.25); }
-.cards { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:18px; }
-.card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; position:relative; overflow:hidden; }
-.card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--hi),transparent); opacity:.7; }
-.card .n { font-size:28px; font-weight:700; color:#fff; font-family:var(--mono); }
-.card .l { color:var(--dim); font-size:11px; text-transform:uppercase; letter-spacing:.08em; margin-top:2px; }
-.toolbar { margin:0 0 14px; color:var(--dim); font-size:12.5px; display:flex; gap:18px; align-items:center; }
-.toolbar label { cursor:pointer; display:flex; gap:6px; align-items:center; }
-table { width:100%; border-collapse:separate; border-spacing:0; background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
-th,td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); }
-thead th { position:sticky; top:0; background:#0d1622; color:var(--dim); font-size:11px; text-transform:uppercase; letter-spacing:.06em; z-index:2; }
-tbody tr:nth-child(even) { background:rgba(255,255,255,.015); }
-tbody tr:hover { background:rgba(122,163,247,.06); }
-tbody tr.row { cursor:pointer; }
-tr.acc-row td { cursor:default; background:var(--panel2); }
-tr.acc-row td .acc-body { padding:4px 4px 8px; }
+h1 { font-size:20px; margin:0 0 0; letter-spacing:.02em; font-weight:700; }
+.brand { color:var(--muted); font-size:11px; letter-spacing:.05em; margin:1px 0 14px; }
+.brand .cyan { color:var(--cyan); }
+.sub { color:var(--muted); font-size:12px; margin:0 0 16px; }
+.langsw { position:absolute; top:24px; right:30px; display:flex; gap:4px; z-index:5; }
+.langsw button {
+  background:var(--raised); color:var(--muted); border:1px solid var(--line); border-radius:7px;
+  padding:5px 13px; font:inherit; font-size:12px; cursor:pointer; transition:color .15s, border-color .15s, box-shadow .15s;
+}
+.langsw button:hover { color:var(--fg); border-color:var(--line2); }
+.langsw button.on { color:var(--cyan); border-color:var(--cyan); box-shadow:0 0 12px rgba(0,200,255,.18); }
+.cards { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-bottom:14px; }
+.card { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:9px 12px; }
+.card .l { color:var(--muted); font-size:10px; letter-spacing:.06em; margin-top:0; }
+.card .n { font-size:20px; font-weight:700; color:var(--fg); font-family:var(--mono); line-height:1.2; }
+.card .n.cyan { color:var(--cyan); }
+.toolbar { margin:0 0 12px; color:var(--muted); font-size:12.5px; display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+.seg { display:inline-flex; background:var(--raised); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+.seg button {
+  background:transparent; color:var(--muted); border:0; border-right:1px solid var(--line);
+  font:inherit; font-size:12px; padding:5px 12px; cursor:pointer; white-space:nowrap;
+  transition:color .15s, background .15s;
+}
+.seg button:last-child { border-right:0; }
+.seg button:hover { color:var(--fg); }
+.seg button.on { color:var(--on); background:var(--cyan); }
+.seg button .cnt { opacity:.6; font-size:10px; margin-left:4px; }
+.toolbar .search {
+  margin-left:auto; display:flex; align-items:center; gap:6px; min-width:200px;
+  background:var(--raised); border:1px solid var(--line); border-radius:7px; padding:4px 10px;
+}
+.toolbar .search:focus-within { border-color:var(--cyan); box-shadow:0 0 0 2px rgba(0,200,255,.12); }
+.toolbar .search input { background:transparent; border:0; outline:0; color:var(--fg); font:inherit; font-size:12.5px; width:100%; }
+.toolbar .search input::placeholder { color:var(--dim); }
+.toolbar .search .ico { color:var(--dim); font-size:12px; }
+#hint { margin-left:4px; }
+/* кликабельные чипы треков */
+.track-chip {
+  display:inline-block; padding:1px 8px; margin:1px 2px; border-radius:12px;
+  font-size:11px; color:var(--muted); border:1px solid var(--line); cursor:pointer;
+  transition:color .12s, border-color .12s, background .12s; user-select:none;
+}
+.track-chip:hover { color:var(--fg); border-color:var(--line2); }
+.track-chip.on { color:var(--cyan); border-color:rgba(0,200,255,.5); background:var(--cyan-dim); }
+/* мелкий чип модели-оценщика */
+.ev-chip {
+  display:inline-block; font-size:9.5px; color:var(--muted); border:1px solid var(--line);
+  border-radius:4px; padding:1px 5px; margin-left:4px; vertical-align:1px; opacity:.9;
+}
+table { width:100%; border-collapse:separate; border-spacing:0; background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:auto; }
+thead th {
+  position:sticky; top:0; z-index:3; background:#0e131c; color:var(--muted);
+  font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; font-weight:600;
+  padding:9px 12px; border-bottom:1px solid var(--line2); white-space:nowrap;
+}
+th,td { text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:middle; }
+tbody tr:last-child td { border-bottom:0; }
+tbody tr.row { cursor:pointer; transition:background .12s; }
+tbody tr.row:hover { background:var(--hover); }
 th.sortable { cursor:pointer; user-select:none; }
 th.sortable:hover { color:var(--fg); }
-tr.our td { background:rgba(255,211,77,.08); }
-tr.our { box-shadow:inset 3px 0 0 var(--hi), 0 0 18px rgba(255,211,77,.08); }
-tr.our .proj { color:var(--hi); font-weight:700; }
-.badge { background:var(--hi); color:#0b0f14; font-size:10px; padding:1px 7px; border-radius:4px; font-weight:800; letter-spacing:.04em; }
-.badge.heuristic { background:var(--hi2); color:#0b0f14; margin-left:6px; }
-.badge.llm { background:var(--ok); color:#0b0f14; margin-left:6px; }
-td.place { color:var(--dim); width:44px; font-family:var(--mono); text-align:right; }
-td.proj { min-width:170px; font-weight:600; }
-td.tracks { color:var(--hi2); font-size:12px; }
-td.num { width:74px; font-weight:700; color:var(--hi); font-family:var(--mono); text-align:right; }
-td.tx { width:110px; font-family:var(--mono); font-size:11px; color:var(--faint); }
-td.tx a { color:var(--hi2); text-decoration:none; }
-td.tx a:hover { text-decoration:underline; }
-td.verdict { color:var(--dim); font-size:12px; }
-.acc-meta { display:flex; flex-wrap:wrap; gap:8px 20px; margin:2px 0 10px; font-size:12px; color:var(--dim); }
-.acc-meta b { color:var(--fg); }
+th.sortable .arrow { color:var(--cyan); font-size:9px; margin-left:3px; }
+/* ★OUR — тонкая золотая кромка, не заливка */
+tr.our td { background:linear-gradient(90deg, var(--gold-dim), transparent 38%); }
+tr.our { box-shadow:inset 2px 0 0 var(--gold); }
+tr.our .proj { color:var(--gold); }
+.badge-our {
+  display:inline-block; background:transparent; border:1px solid var(--gold); color:var(--gold);
+  font-size:9.5px; font-weight:700; letter-spacing:.08em; padding:0 5px; border-radius:4px;
+  margin-left:6px; vertical-align:1px;
+}
+/* источник: LLM яркий, heuristic тусклый пунктир */
+.src-chip {
+  display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.05em;
+  padding:1px 6px; border-radius:4px; margin-left:6px; vertical-align:1px;
+}
+.src-chip.llm { color:var(--cyan); border:1px solid rgba(0,200,255,.45); background:var(--cyan-dim); }
+.src-chip.heuristic { color:var(--muted); border:1px dashed var(--line2); opacity:.75; }
+td.place { color:var(--muted); width:42px; font-family:var(--mono); text-align:right; }
+td.proj { min-width:180px; font-weight:600; }
+td.tracks { color:var(--cyan); font-size:12px; }
+/* demo mini-icon */
+.demoico { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:var(--muted); white-space:nowrap; }
+.demoico .sym { width:16px; height:16px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; }
+.demoico.ok .sym { background:rgba(143,181,115,.16); color:var(--green); }
+.demoico.x .sym { background:rgba(217,96,90,.14); color:var(--red); }
+.demoico.warn .sym { background:rgba(232,201,106,.14); color:var(--amber); }
+/* score bar */
+.bar { display:inline-block; position:relative; width:64px; height:5px; border-radius:3px; background:var(--raised); overflow:hidden; vertical-align:middle; }
+.bar .fill { position:absolute; left:0; top:0; bottom:0; border-radius:3px; }
+.bar .fill.cyan { background:linear-gradient(90deg, var(--amber), var(--cyan)); }
+.bar .fill.mid { background:linear-gradient(90deg, var(--red), var(--amber)); }
+.cellbar { display:flex; align-items:center; gap:7px; }
+.cellbar .v { font-family:var(--mono); font-size:12.5px; font-weight:700; min-width:26px; text-align:right; }
+/* strength chip: число с цветовым акцентом */
+.strength {
+  display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:12px; font-weight:700;
+  padding:1px 7px; border-radius:5px; background:var(--raised); border:1px solid var(--line);
+}
+.strength .scale { color:var(--dim); font-weight:400; font-size:10px; }
+.strength.high { color:var(--cyan); border-color:rgba(0,200,255,.4); }
+.strength.med { color:var(--amber); border-color:rgba(232,201,106,.35); }
+.strength.low { color:var(--muted); }
+td.tx { width:110px; }
+.txchip {
+  display:inline-flex; align-items:center; gap:5px;
+  font-family:var(--mono); font-size:11px; color:var(--cyan);
+  background:var(--cyan-dim); border:1px solid rgba(0,200,255,.3); border-radius:5px;
+  padding:1px 7px; text-decoration:none; transition:box-shadow .15s;
+}
+.txchip:hover { box-shadow:0 0 10px rgba(0,200,255,.25); }
+.txchip .ext { font-size:8px; opacity:.7; }
+.tx-empty { color:var(--dim); }
+td.verdict { color:var(--muted); font-size:12.5px; max-width:280px; }
+/* аккордеон */
+tr.acc-row td { cursor:default; background:var(--raised); border-bottom:1px solid var(--line2); }
+.acc-body { padding:2px 14px 12px; }
+.acc-inner { max-height:0; opacity:0; overflow:hidden; transition:max-height .3s ease, opacity .25s ease; }
+.acc-inner.open { max-height:1400px; opacity:1; }
+.acc-meta { display:flex; flex-wrap:wrap; gap:10px 18px; margin:4px 0 12px; font-size:12px; }
+.acc-meta .k { color:var(--muted); margin-right:4px; }
+.acc-meta .v { color:var(--fg); font-weight:600; }
 .acc-tabs { display:flex; gap:4px; margin-bottom:10px; }
-.acc-tabs button { background:var(--panel); color:var(--dim); border:1px solid var(--line); border-radius:6px; padding:4px 12px; font:inherit; font-size:12px; cursor:pointer; }
-.acc-tabs button.on { color:var(--hi); border-color:var(--hi); }
-.acc-note { color:var(--fg); font-size:13px; max-width:900px; }
-.demo { padding:2px 9px; border-radius:20px; font-size:11px; font-weight:600; }
-.demo.ok { background:rgba(74,222,128,.14); color:var(--ok); }
-.demo.mid { background:rgba(250,204,21,.14); color:var(--mid); }
-.demo.bad { background:rgba(248,113,113,.14); color:var(--bad); }
-.threat { padding:2px 9px; border-radius:20px; font-size:11px; font-weight:700; }
-.threat.high { background:rgba(248,113,113,.18); color:var(--bad); }
-.threat.med { background:rgba(250,204,21,.14); color:var(--mid); }
-.threat.low { background:rgba(122,163,247,.14); color:var(--hi2); }
+.acc-tabs button {
+  background:transparent; color:var(--muted); border:1px solid var(--line); border-radius:6px;
+  padding:3px 12px; font:inherit; font-size:11.5px; cursor:pointer; transition:color .15s, border-color .15s;
+}
+.acc-tabs button:hover { color:var(--fg); }
+.acc-tabs button.on { color:var(--cyan); border-color:var(--cyan); }
+.scores-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:8px 22px; margin:0 0 12px; }
+.scoreitem { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.scoreitem .lbl { color:var(--muted); font-size:11.5px; }
+.scoreitem .lbl .src { opacity:.65; }
+.scoreitem .bar { width:84px; }
+.scoreitem .v { font-family:var(--mono); font-size:12px; font-weight:700; min-width:24px; text-align:right; }
+.chip-val { font-size:11px; padding:1px 8px; border-radius:20px; font-weight:600; }
+.chip-val.ok { background:rgba(143,181,115,.14); color:var(--green); }
+.chip-val.mid { background:rgba(232,201,106,.14); color:var(--amber); }
+.chip-val.bad { background:var(--red-dim); color:var(--red); }
+.acc-note { max-width:78ch; font-size:13px; line-height:1.6; }
+.acc-note .h { color:var(--muted); font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; margin:12px 0 3px; }
+.acc-note .h:first-child { margin-top:0; }
+.details-sec { margin-top:10px; border-top:1px solid var(--line); padding-top:8px; }
+.foot { margin-top:16px; padding-top:10px; border-top:1px solid var(--line); color:var(--dim); font-size:11px; max-width:110ch; }
 body.hw-desktop { padding-top:66px; }
-.foot { margin-top:16px; padding-top:10px; border-top:1px solid var(--line); color:var(--faint); font-size:11px; }
+body.hw-desktop .langsw { top:calc(66px + 24px); }
+body.hw-desktop thead { top:66px; }
 </style></head><body>
-<h1>⚔ Hackathon Watch <span class="our">· NEXUS AiOS</span></h1>
+<h1>⚔ Hackathon Watch</h1>
+<div class="brand">by <span class="cyan">NEXUS AiOS</span></div>
 <div class="langsw">
   <button id="lang-en" class="on" type="button">EN</button>
   <button id="lang-ru" type="button">RU</button>
@@ -82,13 +177,21 @@ body.hw-desktop { padding-top:66px; }
 <div class="sub" id="sub">loading…</div>
 <div class="cards">
   <div class="card"><div class="n" id="c-total">–</div><div class="l" data-i18n="stat.projects">Projects</div></div>
-  <div class="card"><div class="n" id="c-live">–</div><div class="l" data-i18n="stat.live">Live demos</div></div>
+  <div class="card"><div class="n cyan" id="c-live">–</div><div class="l" data-i18n="stat.live">Live demos</div></div>
   <div class="card"><div class="n" id="c-xpost">–</div><div class="l" data-i18n="stat.xpost">X-post</div></div>
-  <div class="card"><div class="n" id="c-high">–</div><div class="l" data-i18n="stat.high">High threat</div></div>
-  <div class="card"><div class="n" id="c-rank">–</div><div class="l" data-i18n="stat.rank">NEXUS rank</div></div>
+  <div class="card"><div class="n" id="c-high">–</div><div class="l" data-i18n="stat.high">Strong</div></div>
+  <div class="card"><div class="n cyan" id="c-rank">–</div><div class="l" data-i18n="stat.rank">NEXUS rank</div></div>
 </div>
 <div class="toolbar">
-  <label><input type="checkbox" id="f-heuristic" checked> <span data-i18n="filter.heuristic">show heuristic rows</span></label>
+  <div class="seg" id="seg-src">
+    <button type="button" data-src="all" class="on">All <span class="cnt" id="cnt-all">0</span></button>
+    <button type="button" data-src="llm">LLM <span class="cnt" id="cnt-llm">0</span></button>
+    <button type="button" data-src="heuristic">heur <span class="cnt" id="cnt-heur">0</span></button>
+  </div>
+  <div class="search">
+    <span class="ico">⌕</span>
+    <input id="f-search" type="text" autocomplete="off" data-i18n-ph="search.ph" placeholder="search…">
+  </div>
   <span id="hint"></span>
 </div>
 <table>
@@ -107,34 +210,55 @@ body.hw-desktop { padding-top:66px; }
 <div class="foot" id="foot"></div>
 <script>
 (function () {
+  'use strict';
   var I18N = {
     en: {
       'stat.projects': 'Projects', 'stat.live': 'Live demos', 'stat.xpost': 'X-post',
       'stat.high': 'Strong', 'stat.rank': 'NEXUS rank',
-      'filter.heuristic': 'show heuristic rows',
+      'filter.heuristic': 'heuristic',
+      'filter.all': 'All', 'filter.llm': 'LLM', 'filter.heur': 'heur',
+      'search.ph': 'search name or track…',
       'col.rank': 'Place', 'col.project': 'Project', 'col.tracks': 'Tracks',
       'col.demo': 'Demo', 'col.winprob': 'WinProb', 'col.strength': 'Strength',
       'col.tx': 'TxHash', 'col.note': 'Analyst note',
-      'threat.high': 'HIGH', 'threat.med': 'MED', 'threat.low': 'LOW',
-      'demo.none': 'no demo', 'demo.dead': 'unavailable',
+      'score.maturity': 'Maturity', 'score.near_fit': 'Near fit', 'score.demo': 'Demo',
+      'score.track_fit': 'Track fit', 'score.novelty': 'Novelty', 'score.impact': 'Impact',
+      'score.strength': 'Strength', 'score.evaluator': 'Evaluator', 'score.source': 'Source',
+      'src.llm': 'LLM', 'src.heuristic': 'heuristic',
+      'demo.real_demo': 'live', 'demo.video': 'video', 'demo.docs_only': 'docs',
+      'demo.x_post': 'X-post', 'demo.broken_link': 'broken', 'demo.unavailable': 'n/a', 'demo.none': 'none',
+      'sec.problem': 'Problem', 'sec.near_role': 'NEAR role', 'sec.strengths': 'Strengths',
+      'sec.weaknesses': 'Weaknesses', 'sec.verdict': 'Verdict',
+      'sec.threat': 'Threat rationale', 'sec.demo': 'Demo rationale', 'sec.report': 'DETAILED REPORT',
       'hint': 'shown %1 of %2',
       'sub': 'schema v%1 · generated %2 · %3 projects · new: %4',
-      'foot': 'WinProb = 0.40·maturity + 0.35·demo_quality + 0.25·track_breadth (0–10). Strength: HIGH ≥7 / MED ≥4 / LOW <4. H — heuristic estimate. Source: %1',
+      'foot': 'WinProb = 0.40·maturity + 0.35·demo_quality + 0.25·track_breadth (0–10). Strength 0–10. H — heuristic estimate. Source: %1',
+      'footchain': 'evaluated by %1 · on-chain: %2 · %3 tx published',
       'err': 'error loading hackwatch.json: %1 (run: cd D:/Temp/hackwatch && python -m hackwatch)',
       'loading': 'loading…'
     },
     ru: {
       'stat.projects': 'Проектов', 'stat.live': 'Живых демо', 'stat.xpost': 'X-post',
       'stat.high': 'Сильные', 'stat.rank': 'Ранг NEXUS',
-      'filter.heuristic': 'показывать heuristic-строки',
+      'filter.heuristic': 'эвристика',
+      'filter.all': 'Все', 'filter.llm': 'LLM', 'filter.heur': 'эвр',
+      'search.ph': 'поиск по имени или треку…',
       'col.rank': 'Место', 'col.project': 'Проект', 'col.tracks': 'Треки',
       'col.demo': 'Демо', 'col.winprob': 'Шансы', 'col.strength': 'Сила',
       'col.tx': 'TxHash', 'col.note': 'Заметка аналитика',
-      'threat.high': 'Высокая', 'threat.med': 'Средняя', 'threat.low': 'Низкая',
-      'demo.none': 'нет демо', 'demo.dead': 'недоступно',
+      'score.maturity': 'Зрелость', 'score.near_fit': 'Near-fit', 'score.demo': 'Демо',
+      'score.track_fit': 'Соответствие трекам', 'score.novelty': 'Новизна', 'score.impact': 'Влияние',
+      'score.strength': 'Сила', 'score.evaluator': 'Оценщик', 'score.source': 'Источник',
+      'src.llm': 'LLM', 'src.heuristic': 'эвристика',
+      'demo.real_demo': 'живое', 'demo.video': 'видео', 'demo.docs_only': 'доки',
+      'demo.x_post': 'X-post', 'demo.broken_link': 'битая', 'demo.unavailable': 'нет', 'demo.none': 'нет',
+      'sec.problem': 'Проблема', 'sec.near_role': 'Роль NEAR', 'sec.strengths': 'Сильные стороны',
+      'sec.weaknesses': 'Слабые стороны', 'sec.verdict': 'Вердикт',
+      'sec.threat': 'Обоснование угрозы', 'sec.demo': 'Обоснование демо', 'sec.report': 'ДЕТАЛЬНЫЙ ОТЧЁТ',
       'hint': 'показано %1 из %2',
       'sub': 'схема v%1 · сгенерировано %2 · %3 проектов · новых: %4',
-      'foot': 'Шансы = 0.40·maturity + 0.35·demo_quality + 0.25·track_breadth (0–10). Сила: HIGH ≥7 / MED ≥4 / LOW <4. H — эвристическая оценка. Источник: %1',
+      'foot': 'Шансы = 0.40·maturity + 0.35·demo_quality + 0.25·track_breadth (0–10). Сила 0–10. H — эвристическая оценка. Источник: %1',
+      'footchain': 'оценено: %1 · on-chain: %2 · опубликовано tx: %3',
       'err': 'ошибка загрузки hackwatch.json: %1 (запустите: cd D:/Temp/hackwatch && python -m hackwatch)',
       'loading': 'загрузка…'
     }
@@ -145,37 +269,39 @@ body.hw-desktop { padding-top:66px; }
     (args || []).forEach(function (a, i) { s = s.replace('%' + (i + 1), a); });
     return s;
   };
-  var state = { key: 'rank', dir: 1, showHeuristic: true, open: null };
+  var state = { key: 'rank', dir: 1, src: 'all', track: null, q: '', open: null };
   var data = null;
-  var accLang = { en: 'en', ru: 'ru' }; // вкладка внутри карточки: отдельная от lang UI
-  /* analysis: три схемы:
-       новая v3: analysis.scores = {maturity,near_fit,demo,track_fit,novelty,impact,strength}
-                    + analysis.en/ru = {rationale,demo_note,verdict,details}
-                    + analysis.evaluator + analysis.source
-       средняя v2: analysis.en/ru — объекты с полями (числа внутри каждой локали)
-       старая v1: analysis.verdict / analysis.threat (плоская) */
+  var accLang = 'en';
+  var counts = { all: 0, llm: 0, heuristic: 0, tx: 0 };
+
+  /* ---------- нормализация схем: v3 scores / v2 en.ru / v1 плоская ---------- */
   var numOf = function (a) {
     if (a.scores && typeof a.scores === 'object') return a.scores;
-    var cur = a.en || a.ru || {};
-    return cur && typeof cur === 'object' && ('verdict' in cur || 'threat' in cur) ? cur : a;
+    var cur = a[lang] || a.en || a.ru || {};
+    if (cur && typeof cur === 'object' && ('maturity' in cur || 'threat' in cur)) return cur;
+    return a;
   };
-  /* текстовые поля для текущей вкладки аккордеона */
   var textOf = function (a, l) {
     var cur = a[l] || a.en || {};
     if (cur && typeof cur === 'object' && ('verdict' in cur || 'threat' in cur)) return cur;
-    return a; // плоская
-  };
-  /* для общих ячеек таблицы — текущий язык UI */
-  var anaOf = function (row) {
-    var a = row.analysis || {};
-    var cur = textOf(a, lang);
-    if (cur && typeof cur === 'object' && ('verdict' in cur || 'threat' in cur)) return cur;
     return a;
   };
-  var threatLevel = function (x) {
-    if (x >= 7) return 'high';
-    if (x >= 4) return 'med';
-    return 'low';
+  var sourceOf = function (r, l) {
+    var a = r.analysis || {};
+    var cur = a[l] || a.en || {};
+    if (cur && typeof cur === 'object') {
+      if ((cur.source && cur.source !== 'heuristic') || (a.evaluator && a.evaluator !== 'heuristic')) return 'llm';
+      if (cur.source === 'heuristic' || a.source === 'heuristic' || a.evaluator === 'heuristic') return 'heuristic';
+    }
+    if (a.evaluator && a.evaluator !== 'heuristic') return 'llm';
+    if (a.source === 'heuristic' || a.evaluator === 'heuristic') return 'heuristic';
+    return 'llm';
+  };
+  var evaluatorOf = function (r, l) {
+    var a = r.analysis || {};
+    var cur = a[l] || a.en || {};
+    var ev = a.evaluator || (cur.source && cur.source !== 'heuristic' ? cur.source : null) || a.source || 'heuristic';
+    return ev;
   };
   var strengthOf = function (r) {
     var a = r.analysis || {};
@@ -183,96 +309,70 @@ body.hw-desktop { padding-top:66px; }
     if (s != null) return s;
     var s2 = (a.scores && a.scores.threat != null) ? a.scores.threat : null;
     if (s2 != null) return s2;
-    return (numOf(a).threat) || 0;
+    var cur = a[lang] || a.en || a.ru || a;
+    return (cur.threat != null) ? cur.threat : 0;
   };
-  var demoHtml = function (d) {
-    if (!d || !d.url) return '<span class="demo bad">' + t('demo.none') + '</span>';
-    if (!d.live) return '<span class="demo bad">' + t('demo.dead') + '</span>';
-    return '<span class="demo ok">' + escapeHtml(d.assessment || 'live') + '</span>';
+  var threatLevel = function (x) {
+    if (x >= 7) return 'high';
+    if (x >= 4) return 'med';
+    return 'low';
   };
-  var cellVal = function (row, key) {
-    if (key === 'rank') return row.rank;
-    if (key === 'win_prob') return row.score ? row.score.win_prob : NaN;
-    if (key === 'strength') return strengthOf(row);
-    if (key === 'tracks') return (row.tracks || []).join(' ').toLowerCase();
-    return '';
+
+  /* ---------- цветовая шкала: слабое красное → сильное синее (#00C8FF) ---------- */
+  var hex = function (n) { n = Math.max(0, Math.min(255, Math.round(n))); return (n < 16 ? '0' : '') + n.toString(16); };
+  var mix = function (c1, c2, k) {
+    var p = function (c) { return [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)]; };
+    var a = p(c1), b = p(c2);
+    return '#' + hex(a[0] + (b[0] - a[0]) * k) + hex(a[1] + (b[1] - a[1]) * k) + hex(a[2] + (b[2] - a[2]) * k);
   };
-  var applyI18n = function () {
-    document.documentElement.lang = lang;
-    document.getElementById('lang-en').className = lang === 'en' ? 'on' : '';
-    document.getElementById('lang-ru').className = lang === 'ru' ? 'on' : '';
-    document.querySelectorAll('[data-i18n]').forEach(function (el) {
-      el.textContent = t(el.getAttribute('data-i18n'));
-    });
-    if (data) fillData();
+  var scaleColor = function (x) { // x 0..1
+    if (x <= 0.5) return mix('#d9605a', '#e8c96a', x / 0.5);
+    return mix('#e8c96a', '#00c8ff', (x - 0.5) / 0.5);
   };
-  var fillData = function () {
-    var newN = data.source && (Array.isArray(data.source.new_ids_this_run) ? data.source.new_ids_this_run.length : (data.source.new_ids_this_run != null ? data.source.new_ids_this_run : data.source.new_since_last_run));
-    document.getElementById('sub').textContent = t('sub', [data.schema_version, data.generated_at, data.source.total_projects, newN == null ? 0 : newN]);
-    document.getElementById('c-total').textContent = data.source.total_projects;
-    document.getElementById('c-live').textContent = data.stats.live_demos;
-    document.getElementById('c-xpost').textContent = data.stats.x_post_demos;
-    document.getElementById('c-high').textContent = data.stats.high_threat;
-    document.getElementById('c-rank').textContent = data.our_project.rank;
-    document.getElementById('foot').textContent = t('foot', [data.source.catalog]);
-    render();
+  var barHtml = function (v, max, cls) {
+    var x = Math.max(0, Math.min(1, (v == null ? 0 : v) / (max || 10)));
+    var col = scaleColor(x);
+    var fillCls = cls || (x >= 0.5 ? 'cyan' : 'mid');
+    return '<span class="bar" style="width:64px"><span class="fill ' + fillCls + '" style="width:' + (x * 100).toFixed(1) + '%;background:' + col + '"></span></span>';
   };
-  var render = function () {
-    if (!data) return;
-    var rows = data.ranking.filter(function (r) {
-      if (state.showHeuristic) return true;
-      var a = anaOf(r);
-      return a.source !== 'heuristic';
-    });
-    rows.sort(function (a, b) {
-      var va = cellVal(a, state.key), vb = cellVal(b, state.key);
-      if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * state.dir;
-      if (va < vb) return -1 * state.dir;
-      if (va > vb) return 1 * state.dir;
-      return 0;
-    });
-    var tbody = document.getElementById('rows');
-    tbody.innerHTML = '';
-    rows.forEach(function (r) {
-      var ana = r.analysis || {};
-      var nums = numOf(ana);
-      var texts = textOf(ana, lang);
-      var heuristic = (ana.evaluator === 'heuristic') || (texts.source === 'heuristic') || (nums.source === 'heuristic');
-      var tr = document.createElement('tr');
-      tr.className = 'row' + (r.is_ours ? ' our' : '');
-      tr.setAttribute('data-id', r.id);
-      tr.innerHTML =
-        '<td class="place">' + r.rank + '</td>' +
-        '<td class="proj">' + escapeHtml(r.project_name) +
-          (r.is_ours ? ' <span class="badge">OUR</span>' : '') +
-          (heuristic ? ' <span class="badge heuristic" title="' + t('filter.heuristic') + '">H</span>' : ' <span class="badge llm" title="LLM">L</span>') +
-        '</td>' +
-        '<td class="tracks">' + escapeHtml((r.tracks || []).join(' · ')) + '</td>' +
-        '<td>' + demoHtml(r.demo) + '</td>' +
-        '<td class="num">' + (r.score ? r.score.win_prob : '–') + '</td>' +
-        '<td><span class="threat ' + threatLevel(strengthOf(r)) + '">' + t('threat.' + threatLevel(strengthOf(r))) + '</span> ' +
-          escapeHtml((texts.threat_rationale || texts.rationale || '').slice(0, 60)) + '</td>' +
-        '<td class="tx">' + txHtml(r) + '</td>' +
-        '<td class="verdict">' + escapeHtml((texts.verdict || '').slice(0, 160)) + '</td>';
-      tbody.appendChild(tr);
-      if (state.open === r.id) tbody.appendChild(accordionRow(r));
-    });
-    document.getElementById('hint').textContent = t('hint', [rows.length, data.ranking.length]);
+
+  /* ---------- компоненты строки ---------- */
+  var demoIcon = function (d) {
+    var as = d && d.assessment;
+    if (!d || !d.url || as === 'none' || as === 'unavailable') {
+      return '<span class="demoico warn"><span class="sym">!</span><span>' + t('demo.none') + '</span></span>';
+    }
+    if (as === 'x_post' || as === 'x-post') return '<span class="demoico x"><span class="sym">✕</span><span>' + t('demo.x_post') + '</span></span>';
+    return '<span class="demoico ok"><span class="sym">✓</span><span>' + t(as || 'demo.real_demo') + '</span></span>';
   };
   var txHtml = function (r) {
-    // Заглушка: ACE скоро начнёт писать on-chain оценки в hackwatch.yksunder.testnet.
     var tx = (r.tx && r.tx.hash) || r.tx_hash || r.onchain_tx;
-    if (tx) return '<a href="https://testnet.nearblocks.io/txns/' + escapeHtml(tx) + '" target="_blank" rel="noopener">' + escapeHtml(String(tx).slice(0, 10)) + '…</a>';
-    return '<span class="tx-empty">—</span>';
+    if (!tx) return '<span class="tx-empty">—</span>';
+    var base = (r.tx_explorer && /^https?:/.test(r.tx_explorer)) ? r.tx_explorer : 'https://testnet.nearblocks.io/txns/';
+    var href = /^https?:/.test(base) && base.indexOf('{tx}') >= 0 ? base.replace('{tx}', encodeURIComponent(tx)) :
+               (/^https?:/.test(base) ? base + encodeURIComponent(tx) : base);
+    return '<a class="txchip" href="' + escapeHtml(href) + '" target="_blank" rel="noopener" title="' +
+      escapeHtml(tx) + '">' + escapeHtml(String(tx).slice(0, 10)) + '<span class="ext">↗</span></a>';
   };
-  var accordionRow = function (r) {
-    var tr = document.createElement('tr');
-    tr.className = 'acc-row';
-    tr.innerHTML = '<td colspan="8"><div class="acc-body" id="acc-' + escapeHtml(r.id) + '"></div></td>';
-    var body = tr.querySelector('.acc-body');
-    body.appendChild(accordionContent(r));
-    return tr;
+  var strengthChip = function (s) {
+    var lvl = threatLevel(s);
+    var num = Number(s);
+    var shown = isFinite(num) ? (num % 1 === 0 ? num : num.toFixed(1)) : '–';
+    return '<span class="strength ' + lvl + '">' + shown + '<span class="scale">/10</span></span>';
   };
+  var scoreLine = function (k, label, v) {
+    if (typeof v === 'number') {
+      return '<div class="scoreitem"><span class="lbl">' + label + '</span>' + barHtml(v, 10) +
+        '<span class="v">' + (v % 1 === 0 ? v : v.toFixed(1)) + '</span></div>';
+    }
+    if (typeof v === 'string') {
+      var cls = { strong: 'ok', high: 'ok', medium: 'mid', med: 'mid', weak: 'bad', low: 'bad', real_demo: 'ok', video: 'mid', docs_only: 'mid', x_post: 'mid', broken_link: 'bad', unavailable: 'bad' }[v] || 'mid';
+      return '<div class="scoreitem"><span class="lbl">' + label + '</span><span class="chip-val ' + cls + '">' + escapeHtml(v) + '</span></div>';
+    }
+    return '';
+  };
+
+  /* ---------- аккордеон ---------- */
   var accordionContent = function (r) {
     var wrap = document.createElement('div');
     var tabs = document.createElement('div');
@@ -292,55 +392,230 @@ body.hw-desktop { padding-top:66px; }
     var ana = r.analysis || {};
     var nums = numOf(ana);
     var a = textOf(ana, accLang);
-    var evaluator = ana.evaluator || a.source || '–';
-    var srcLabel = evaluator === 'nexus/mercury-3' ? 'mercury-3' : evaluator;
+    var ev = evaluatorOf(r, accLang);
+    var src = sourceOf(r, accLang);
     var meta = document.createElement('div');
     meta.className = 'acc-meta';
     meta.innerHTML =
-      '<span><b>' + (accLang === 'ru' ? 'Зрелость' : 'Maturity') + ':</b> ' + (nums.maturity != null ? nums.maturity : '–') + '/10</span>' +
-      '<span><b>' + (accLang === 'ru' ? 'Демо' : 'Demo') + ':</b> ' + escapeHtml(nums.demo_assessment || '–') + '</span>' +
-      '<span><b>' + (accLang === 'ru' ? 'Трек' : 'Track fit') + ':</b> ' + escapeHtml(nums.track_fit || '–') + '</span>' +
-      '<span><b>' + (accLang === 'ru' ? 'Сила' : 'Strength') + ':</b> ' + (strengthOf(r) != null ? strengthOf(r) : '–') + '/10</span>' +
-      '<span><b>' + (accLang === 'ru' ? 'Оценщик' : 'Evaluator') + ':</b> ' + escapeHtml(srcLabel) + '</span>';
-    var rationale = document.createElement('div');
-    rationale.className = 'acc-note';
-    rationale.innerHTML =
-      '<div style="color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">' +
-        (accLang === 'ru' ? 'Обоснование угрозы' : 'Threat rationale') + '</div>' +
-      '<div>' + escapeHtml(a.threat_rationale || a.rationale || '—') + '</div>';
-    var demoR = document.createElement('div');
-    demoR.className = 'acc-note';
-    demoR.style.marginTop = '8px';
-    demoR.innerHTML =
-      '<div style="color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">' +
-        (accLang === 'ru' ? 'Обоснование демо' : 'Demo rationale') + '</div>' +
-      '<div>' + escapeHtml(a.demo_rationale || a.demo_note || '—') + '</div>';
-    var verdict = document.createElement('div');
-    verdict.className = 'acc-note';
-    verdict.style.marginTop = '8px';
-    verdict.innerHTML =
-      '<div style="color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">' +
-        (accLang === 'ru' ? 'Вердикт' : 'Verdict') + '</div>' +
-      '<div>' + escapeHtml(a.verdict || '—') + '</div>';
+      '<span><span class="k">' + t('score.evaluator') + ':</span><span class="v src-chip ' + src + '">' + escapeHtml(ev === 'heuristic' ? t('src.heuristic') : ev) + '</span></span>' +
+      '<span><span class="k">' + t('score.source') + ':</span><span class="v">' + t(src === 'heuristic' ? 'src.heuristic' : 'src.llm') + '</span></span>' +
+      '<span><span class="k">' + t('score.strength') + ':</span>' + strengthChip(strengthOf(r)) + '</span>';
+    var scores = document.createElement('div');
+    scores.className = 'scores-grid';
+    var entries = [
+      ['maturity', t('score.maturity')], ['near_fit', t('score.near_fit')], ['demo', t('score.demo')],
+      ['track_fit', t('score.track_fit')], ['novelty', t('score.novelty')], ['impact', t('score.impact')]
+    ];
+    var html = '';
+    entries.forEach(function (e) {
+      if (nums[e[0]] != null) html += scoreLine(e[0], e[1], nums[e[0]]);
+    });
+    if (!html) {
+      html = '<div class="scoreitem"><span class="lbl">' + t('score.maturity') + '</span>' + barHtml(nums.maturity, 10) +
+        '<span class="v">' + (nums.maturity != null ? nums.maturity : '–') + '</span></div>';
+    }
+    scores.innerHTML = html;
+    var note = function (h, body) {
+      var d = document.createElement('div');
+      d.className = 'acc-note';
+      var inner;
+      if (Array.isArray(body)) {
+        inner = '<ul style="margin:2px 0 0 18px;padding:0">';
+        body.forEach(function (b) { inner += '<li>' + escapeHtml(b) + '</li>'; });
+        inner += '</ul>';
+      } else {
+        inner = '<div>' + escapeHtml(body || '—') + '</div>';
+      }
+      d.innerHTML = '<div class="h">' + h + '</div>' + inner;
+      return d;
+    };
     wrap.appendChild(tabs);
     wrap.appendChild(meta);
-    wrap.appendChild(rationale);
-    wrap.appendChild(demoR);
-    wrap.appendChild(verdict);
-    if (a.details) {
-      var details = document.createElement('div');
-      details.className = 'acc-note';
-      details.style.marginTop = '10px';
-      details.style.borderTop = '1px solid var(--line)';
-      details.style.paddingTop = '8px';
-      details.innerHTML =
-        '<div style="color:var(--hi);font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">' +
-          (accLang === 'ru' ? 'ДЕТАЛЬНЫЙ ОТЧЁТ' : 'DETAILED REPORT') + '</div>' +
-        '<div style="line-height:1.6">' + escapeHtml(a.details) + '</div>';
-      wrap.appendChild(details);
+    wrap.appendChild(scores);
+    wrap.appendChild(note(t('sec.threat'), a.threat_rationale || a.rationale));
+    wrap.appendChild(note(t('sec.demo'), a.demo_rationale || a.demo_note));
+    wrap.appendChild(note(t('sec.verdict'), a.verdict));
+    var det = ana.details || a.details;
+    if (det && typeof det === 'object') {
+      var sec = document.createElement('div');
+      sec.className = 'details-sec';
+      var order = [['problem', t('sec.problem')], ['near_role', t('sec.near_role')], ['strengths', t('sec.strengths')], ['weaknesses', t('sec.weaknesses')], ['verdict', t('sec.verdict')]];
+      order.forEach(function (o) {
+        if (det[o[0]] != null) sec.appendChild(note(o[1], det[o[0]]));
+      });
+      wrap.appendChild(sec);
+    } else if (det) {
+      wrap.appendChild(note(t('sec.report'), det));
     }
     return wrap;
   };
+  var openAccordion = function (id) {
+    var prev = document.querySelector('tr.acc-row');
+    if (prev) {
+      var inner = prev.querySelector('.acc-inner');
+      if (inner) {
+        inner.classList.remove('open');
+        var tr = prev;
+        setTimeout(function () { if (tr.parentNode) tr.parentNode.removeChild(tr); }, 320);
+      } else { prev.parentNode.removeChild(prev); }
+    }
+    state.open = id;
+    if (!id) return;
+    var srcTr = document.querySelector('tr.row[data-id="' + escapeHtml(id) + '"]');
+    if (!srcTr) return;
+    var tr = document.createElement('tr');
+    tr.className = 'acc-row';
+    var td = document.createElement('td');
+    td.colSpan = 8;
+    var body = document.createElement('div');
+    body.className = 'acc-body';
+    var inner = document.createElement('div');
+    inner.className = 'acc-inner';
+    inner.id = 'acc-' + escapeHtml(id);
+    inner.appendChild(accordionContent(srcTr.getAttribute('data-id') === id ? data.ranking.filter(function (x) { return x.id === id; })[0] : {}));
+    body.appendChild(inner);
+    td.appendChild(body);
+    tr.appendChild(td);
+    srcTr.parentNode.insertBefore(tr, srcTr.nextSibling);
+    requestAnimationFrame(function () { requestAnimationFrame(function () { inner.classList.add('open'); }); });
+  };
+
+  /* ---------- рендер таблицы ---------- */
+  var cellVal = function (row, key) {
+    if (key === 'rank') return row.rank;
+    if (key === 'win_prob') return row.score ? row.score.win_prob : NaN;
+    if (key === 'strength') return strengthOf(row);
+    if (key === 'tracks') return (row.tracks || []).join(' ').toLowerCase();
+    return '';
+  };
+  var applyI18n = function () {
+    document.documentElement.lang = lang;
+    document.getElementById('lang-en').className = lang === 'en' ? 'on' : '';
+    document.getElementById('lang-ru').className = lang === 'ru' ? 'on' : '';
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      el.textContent = t(el.getAttribute('data-i18n'));
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
+      el.setAttribute('placeholder', t(el.getAttribute('data-i18n-ph')));
+    });
+    if (data) fillData();
+  };
+  var fillData = function () {
+    var newN = data.source && (Array.isArray(data.source.new_ids_this_run) ? data.source.new_ids_this_run.length : (data.source.new_ids_this_run != null ? data.source.new_ids_this_run : data.source.new_since_last_run));
+    document.getElementById('sub').textContent = t('sub', [data.schema_version, data.generated_at, data.source.total_projects, newN == null ? 0 : newN]);
+    document.getElementById('c-total').textContent = data.source.total_projects;
+    document.getElementById('c-live').textContent = data.stats.live_demos;
+    document.getElementById('c-xpost').textContent = data.stats.x_post_demos;
+    document.getElementById('c-high').textContent = data.stats.high_threat;
+    document.getElementById('c-rank').textContent = data.our_project.rank;
+    updateFilters();
+    render();
+  };
+  var render = function () {
+    if (!data) return;
+    var q = state.q.toLowerCase();
+    var rows = data.ranking.filter(function (r) {
+      var src = sourceOf(r, lang);
+      if (state.src !== 'all' && src !== state.src) return false;
+      if (state.track && (r.tracks || []).indexOf(state.track) < 0) return false;
+      if (q) {
+        var hay = (r.project_name || '') + ' ' + (r.tracks || []).join(' ');
+        if (hay.toLowerCase().indexOf(q) < 0) return false;
+      }
+      return true;
+    });
+    rows.sort(function (a, b) {
+      var va = cellVal(a, state.key), vb = cellVal(b, state.key);
+      if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * state.dir;
+      if (va < vb) return -1 * state.dir;
+      if (va > vb) return 1 * state.dir;
+      return 0;
+    });
+    var tbody = document.getElementById('rows');
+    tbody.innerHTML = '';
+    rows.forEach(function (r) {
+      var src = sourceOf(r, lang);
+      var ev = evaluatorOf(r, lang);
+      var tr = document.createElement('tr');
+      tr.className = 'row' + (r.is_ours ? ' our' : '');
+      tr.setAttribute('data-id', r.id);
+      var wp = r.score ? r.score.win_prob : null;
+      var tracksHtml = '';
+      (r.tracks || []).forEach(function (tk) {
+        tracksHtml += '<span class="track-chip' + (state.track === tk ? ' on' : '') + '" data-track="' + escapeHtml(tk) + '">' + escapeHtml(tk) + '</span>';
+      });
+      tr.innerHTML =
+        '<td class="place">' + r.rank + '</td>' +
+        '<td class="proj">' + escapeHtml(r.project_name) +
+          (r.is_ours ? ' <span class="badge-our">OUR</span>' : '') +
+          '<span class="src-chip ' + src + '">' + t(src === 'heuristic' ? 'src.heuristic' : 'src.llm') + '</span>' +
+          (src === 'llm' && ev && ev !== 'heuristic' ? '<span class="ev-chip">' + escapeHtml(ev.replace('nexus/', '')) + '</span>' : '') +
+        '</td>' +
+        '<td class="tracks">' + tracksHtml + '</td>' +
+        '<td>' + demoIcon(r.demo) + '</td>' +
+        '<td><span class="cellbar">' + barHtml(wp, 10) +
+          '<span class="v" style="color:' + scaleColor((wp == null ? 0 : wp) / 10) + '">' + (wp == null ? '–' : wp) + '</span></span></td>' +
+        '<td>' + strengthChip(strengthOf(r)) + '</td>' +
+        '<td class="tx">' + txHtml(r) + '</td>' +
+        '<td class="verdict">' + escapeHtml((textOf(r.analysis || {}, lang).verdict || '').slice(0, 160)) + '</td>';
+      tbody.appendChild(tr);
+      if (state.open === r.id) {
+        var srcTr = tr;
+        var atr = document.createElement('tr');
+        atr.className = 'acc-row';
+        var atd = document.createElement('td');
+        atd.colSpan = 8;
+        var abody = document.createElement('div');
+        abody.className = 'acc-body';
+        var ainner = document.createElement('div');
+        ainner.className = 'acc-inner open';
+        ainner.id = 'acc-' + escapeHtml(r.id);
+        ainner.appendChild(accordionContent(r));
+        abody.appendChild(ainner);
+        atd.appendChild(abody);
+        atr.appendChild(atd);
+        srcTr.parentNode.insertBefore(atr, srcTr.nextSibling);
+      }
+    });
+    document.getElementById('hint').textContent = t('hint', [rows.length, data.ranking.length]);
+    updateSortArrows();
+  };
+  var updateSortArrows = function () {
+    document.querySelectorAll('th.sortable').forEach(function (th) {
+      var k = th.getAttribute('data-k');
+      var arrow = th.querySelector('.arrow');
+      if (k === state.key) {
+        if (!arrow) { arrow = document.createElement('span'); arrow.className = 'arrow'; th.appendChild(arrow); }
+        arrow.textContent = state.dir === 1 ? '▲' : '▼';
+      } else if (arrow) {
+        arrow.parentNode.removeChild(arrow);
+      }
+    });
+  };
+  var updateFilters = function () {
+    counts.all = 0; counts.llm = 0; counts.heuristic = 0; counts.tx = 0;
+    data.ranking.forEach(function (r) {
+      counts.all++;
+      var src = sourceOf(r, lang);
+      if (src === 'llm') counts.llm++; else counts.heuristic++;
+      if ((r.tx && r.tx.hash) || r.tx_hash || r.onchain_tx) counts.tx++;
+    });
+    document.getElementById('cnt-all').textContent = counts.all;
+    document.getElementById('cnt-llm').textContent = counts.llm;
+    document.getElementById('cnt-heur').textContent = counts.heuristic;
+    document.querySelectorAll('#seg-src button').forEach(function (b) {
+      b.className = b.getAttribute('data-src') === state.src ? 'on' : '';
+    });
+    var evSet = {};
+    data.ranking.forEach(function (r) { var e = evaluatorOf(r, lang); if (e && e !== 'heuristic') evSet[e] = 1; });
+    var evNames = Object.keys(evSet).map(function (e) { return e.replace('nexus/', ''); });
+    var chain = '';
+    if (counts.tx > 0) {
+      chain = ' · <span style="color:var(--cyan)">' + t('footchain', [evNames.join(', ') || 'LLM', 'hackwatch.yksunder.testnet', counts.tx]) + '</span>';
+    }
+    document.getElementById('foot').innerHTML = t('foot', [data.source.catalog]) + chain;
+  };
+
   var escapeHtml = function (s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -364,15 +639,29 @@ body.hw-desktop { padding-top:66px; }
       render();
     });
   });
+  document.getElementById('seg-src').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-src]');
+    if (!b) return;
+    state.src = b.getAttribute('data-src');
+    updateFilters();
+    render();
+  });
   document.getElementById('rows').addEventListener('click', function (e) {
+    var chip = e.target.closest('.track-chip');
+    if (chip) {
+      e.stopPropagation();
+      var tk = chip.getAttribute('data-track');
+      state.track = state.track === tk ? null : tk;
+      render();
+      return;
+    }
     var tr = e.target.closest('tr.row');
     if (!tr) return;
     var id = tr.getAttribute('data-id');
-    state.open = state.open === id ? null : id;
-    render();
+    openAccordion(state.open === id ? null : id);
   });
-  document.getElementById('f-heuristic').addEventListener('change', function (e) {
-    state.showHeuristic = e.target.checked;
+  document.getElementById('f-search').addEventListener('input', function (e) {
+    state.q = e.target.value;
     render();
   });
   document.getElementById('lang-en').addEventListener('click', function () { lang = 'en'; localStorage.setItem('hw-lang', 'en'); applyI18n(); });
