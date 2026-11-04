@@ -34,8 +34,10 @@ ships an empty template at `hackwatch/config.example.json`:
 }
 ```
 
-Copy it to `hackwatch/config.json` and fill the provider fields. Priority is:
-**config.json > config.example.json > environment (NEXUSLINK_BASE / NEXUSLINK_SLOT / NEXUSLINK_KEY) > built-in default**.
+Copy it to `hackwatch/config.json` and fill the provider fields. Actual priority (verified in code):
+**env `NEXUSLINK_KEY` > `config.json` "key" > `~/.config/opencode/opencode.jsonc` (deprecated local-dev fallback)**.
+`config.example.json` is **not read** by the scorer — it is a template only; copy it to `config.json` and edit that.
+`NEXUSLINK_BASE` / `NEXUSLINK_SLOT` env vars override `config.json` `provider_endpoint` / `model` the same way.
 
 Without a key the scorer degrades to a heuristic fallback (no network calls).
 

@@ -21,10 +21,123 @@ body {
     var(--bg);
 }
 h1 { font-size:31px; margin:0 0 0; letter-spacing:.02em; font-weight:700; }
+/* голографический заголовок — переливающаяся фольга в палитре nexus-lux */
+h1 .holo {
+  background: linear-gradient(100deg,
+    #8ab4ff 0%, #00c8ff 22%, #7be8d8 40%, #e8c96a 58%, #c59bff 76%, #8ab4ff 100%);
+  background-size: 280% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  animation: holo-flow 9s linear infinite;
+  filter: drop-shadow(0 0 14px rgba(0,200,255,.22)) drop-shadow(0 1px 6px rgba(197,155,255,.12));
+}
+@keyframes holo-flow { to { background-position: 280% 0; } }
 .brand { color:var(--muted); font-size:15.5px; letter-spacing:.05em; margin:1px 0 14px; }
 .brand .cyan { color:var(--cyan); }
 .sub { color:var(--muted); font-size:17px; margin:0 0 16px; }
 .langsw { position:absolute; top:24px; right:30px; display:flex; gap:4px; z-index:5; }
+.pager { position:absolute; top:24px; right:170px; display:flex; gap:4px; z-index:5; }
+.pager button {
+  background:var(--raised); color:var(--muted); border:1px solid var(--line); border-radius:7px;
+  padding:5px 14px; font:inherit; font-size:15.5px; cursor:pointer; transition:color .15s, border-color .15s, background .15s;
+}
+.pager button:hover { color:var(--fg); }
+.pager button.on { color:var(--on); background:var(--cyan); border-color:var(--cyan); }
+.page { display:none; }
+.page.on { display:block; }
+/* страница «По трекам» */
+.p-summary {
+  background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:10px 14px;
+  font-size:15px; color:var(--muted); margin-bottom:14px;
+}
+.p-summary b { color:var(--fg); font-weight:600; }
+.p-summary .cyan { color:var(--cyan); }
+.tracks-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(560px, 1fr)); gap:16px; }
+.p-track { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+.p-track-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; gap:10px; }
+.p-track-head .tname { font-size:17.5px; font-weight:700; color:var(--cyan); }
+.p-track-head .cnt { font-size:13.5px; color:var(--muted); }
+.p-table { width:100%; table-layout:fixed; border-collapse:separate; border-spacing:0; }
+/* заголовки трек-таблиц: короткие (# / WP / STR / PROJECT / DEMO), БЕЗ резки —
+   только колонка project (.tproj) имеет ellipsis; остальные no-wrap и видимы. */
+.p-table th {
+  position:static; background:transparent; color:var(--muted); font-size:12px;
+  letter-spacing:.06em; text-transform:uppercase; padding:6px 8px; border-bottom:1px solid var(--line);
+  white-space:nowrap; overflow:visible; text-overflow:clip;
+}
+.p-table th.tproj { overflow:hidden; text-overflow:ellipsis; }
+.p-table td { padding:7px 8px; border-bottom:1px solid var(--line); font-size:15.5px; white-space:nowrap; overflow:visible; vertical-align:middle; }
+.p-table tbody tr:last-child td { border-bottom:0; }
+.p-table .tplace { width:32px; }
+.p-table td.tplace { color:var(--muted); font-family:var(--mono); font-size:15px; text-align:right; }
+.p-table td.tproj { font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:0; }
+.p-table .tproj { overflow:hidden; }
+.p-table .twp { width:118px; }
+.p-table .tst { width:78px; }
+.p-table .tdemo { width:150px; }
+.p-table .cellbar .v { font-size:15.5px; }
+.p-table .strength { font-size:15px; padding:2px 7px; }
+.p-table .strength .scale { font-size:13px; }
+/* demo+crowd чипы в трек-таблице переносятся внутрь ячейки, не лезут на соседи */
+.p-table td.tdemo { white-space:normal; }
+.p-table td.tdemo .dcompact, .p-table td.tdemo .crowd-chip { margin:1px 2px 1px 0; }
+/* подиум-подсветка 1/2/3 — плоский тинт (НЕ градиент) + левая кромка 3px */
+tr.podium-gold td { background:rgba(212,175,55,.09); }
+tr.podium-gold { box-shadow:inset 3px 0 0 var(--gold); }
+tr.podium-gold .tplace { color:var(--gold); font-weight:700; }
+tr.podium-silver td { background:rgba(200,206,214,.06); }
+tr.podium-silver { box-shadow:inset 3px 0 0 #c8ced6; }
+tr.podium-silver .tplace { color:#c8ced6; font-weight:700; }
+tr.podium-bronze td { background:rgba(200,140,90,.08); }
+tr.podium-bronze { box-shadow:inset 3px 0 0 #c88c5a; }
+tr.podium-bronze .tplace { color:#c88c5a; font-weight:700; }
+/* dup-бейдж: приглушённый чип, строка чуть затушёвана */
+.dup-chip {
+  display:inline-block; font-size:11px; color:var(--muted); border:1px dashed var(--line2);
+  border-radius:4px; padding:0 5px; margin-left:6px; vertical-align:1px; opacity:.7;
+}
+tr.dup td { opacity:.55; }
+/* deadline-бейдж (шапка) */
+.deadline {
+  display:inline-flex; align-items:center; gap:6px; background:var(--raised); border:1px solid var(--line);
+  border-radius:7px; padding:4px 10px; font-size:13px; color:var(--muted); margin-left:12px;
+}
+.deadline b { color:var(--fg); font-family:var(--mono); font-weight:600; }
+/* компактный demo-чип для трековых таблиц */
+.dcompact { display:inline-flex; align-items:center; gap:3px; font-size:11px; font-family:var(--mono); color:var(--muted); white-space:nowrap; }
+.dcompact .sym { font-weight:700; }
+.dcompact.ok .sym { color:var(--cyan); }
+.dcompact.x .sym { color:#e8c96a; }
+.dcompact.warn .sym { color:var(--line2); }
+/* WAVE-2C: crowd-дельта + attest-чипы */
+.crowd-chip { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-family:var(--mono);
+  color:var(--muted); background:var(--raised); border:1px solid var(--line); border-radius:5px;
+  padding:1px 6px; white-space:nowrap; }
+.crowd-chip .up { color:var(--cyan); }
+.crowd-chip .down { color:#e8c96a; }
+.crowd-chip.compact { padding:1px 5px; }
+.attest-chip { display:inline-flex; align-items:center; gap:3px; font-size:11px; font-family:var(--mono);
+  border-radius:5px; padding:1px 6px; white-space:nowrap; }
+.attest-chip .sym { font-weight:700; }
+.attest-chip.ok { color:var(--cyan); background:rgba(0,200,255,.07); border:1px solid rgba(0,200,255,.25); }
+.attest-chip.ok .sym { color:var(--cyan); }
+.attest-chip.none { color:var(--muted); background:var(--raised); border:1px solid var(--line); }
+/* WAVE-2C: вкладка «Лента» */
+.feed { max-height:560px; overflow:auto; border:1px solid var(--line); border-radius:10px; background:var(--panel); }
+.feed-item { display:flex; gap:12px; align-items:center; padding:8px 14px; border-bottom:1px solid var(--line); }
+.feed-item:last-child { border-bottom:0; }
+.feed-item .ficon { font-family:var(--mono); font-size:13px; width:14px; text-align:center; }
+.feed-item .ficon.new { color:var(--cyan); }
+.feed-item .ficon.removed { color:#d9605a; }
+.feed-item .ficon.demo_changed { color:#e8c96a; }
+.feed-item .fname { font-weight:600; font-size:15px; }
+.feed-item .fdet { font-size:12px; color:var(--muted); }
+.feed-item .fts { margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--muted); }
+.feed-empty { padding:24px; text-align:center; color:var(--muted); font-size:14px; }
+.toverall {
+  font-size:11px; color:var(--muted); margin-left:4px; font-family:var(--mono);
+  vertical-align:2px; opacity:.7;
+}
 .langsw button {
   background:var(--raised); color:var(--muted); border:1px solid var(--line); border-radius:7px;
   padding:5px 13px; font:inherit; font-size:15.5px; cursor:pointer; transition:color .15s, border-color .15s, box-shadow .15s;
@@ -76,7 +189,6 @@ thead th {
   padding:10px 14px; border-bottom:1px solid var(--line2); white-space:nowrap;
 }
 /* Desktop shell: sticky thead — titlebar не перекрывает */
-body.hw-desktop thead th { top:66px; }
 th,td { text-align:left; padding:11px 14px; border-bottom:1px solid var(--line); vertical-align:middle; }
 tbody tr:last-child td { border-bottom:0; }
 tbody tr.row { cursor:pointer; transition:background .12s; }
@@ -107,7 +219,7 @@ td.tracks { color:var(--cyan); font-size:17px; }
 .demoico { display:inline-flex; align-items:center; gap:6px; font-size:16px; color:var(--muted); white-space:nowrap; }
 .demoico .sym { width:18px; height:18px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; }
 .demoico.ok .sym { background:rgba(143,181,115,.16); color:var(--green); }
-.demoico.x .sym { background:rgba(217,96,90,.14); color:var(--red); }
+.demoico.x .sym { background:transparent; border-radius:2px; color:var(--red); box-shadow:inset 0 0 0 1px rgba(217,96,90,.35); }
 .demoico.warn .sym { background:rgba(232,201,106,.14); color:var(--amber); }
 /* score bar */
 .bar { display:inline-block; position:relative; width:70px; height:5px; border-radius:3px; background:var(--raised); overflow:hidden; vertical-align:middle; }
@@ -168,22 +280,30 @@ tr.acc-row td { cursor:default; background:var(--raised); border-bottom:1px soli
 .foot { margin-top:16px; padding-top:10px; border-top:1px solid var(--line); color:var(--dim); font-size:14.5px; max-width:110ch; }
 body.hw-desktop { padding-top:66px; }
 body.hw-desktop .langsw { top:calc(66px + 24px); }
-body.hw-desktop thead { top:38px; }
+body.hw-desktop .pager { top:calc(66px + 24px); }
+body.hw-desktop thead th { top:38px; }
 </style></head><body>
-<h1>⚔ Hackathon Watch</h1>
+<h1>⚔ <span class="holo">Hackathon Watch</span></h1>
 <div class="brand">by <span class="cyan">NEXUS AiOS</span></div>
+<div class="pager" id="pager">
+  <button type="button" data-page="rank" class="on" data-i18n="page.rank">Рейтинг</button>
+  <button type="button" data-page="tracks" data-i18n="page.tracks">По трекам</button>
+  <button type="button" data-page="feed" data-i18n="page.feed" id="tab-feed" style="display:none">Лента</button>
+</div>
 <div class="langsw">
   <button id="lang-en" class="on" type="button">EN</button>
   <button id="lang-ru" type="button">RU</button>
 </div>
 <div class="sub" id="sub">loading…</div>
+<div id="deadline" class="deadline" style="display:none"></div>
 <div class="cards">
   <div class="card"><div class="n" id="c-total">–</div><div class="l" data-i18n="stat.projects">Projects</div></div>
   <div class="card"><div class="n cyan" id="c-live">–</div><div class="l" data-i18n="stat.live">Live demos</div></div>
   <div class="card"><div class="n" id="c-xpost">–</div><div class="l" data-i18n="stat.xpost">X-post</div></div>
   <div class="card"><div class="n" id="c-high">–</div><div class="l" data-i18n="stat.high">Strong</div></div>
-  <div class="card"><div class="n cyan" id="c-rank">–</div><div class="l" data-i18n="stat.rank">NEXUS rank</div></div>
+  <div class="card"><div class="n cyan" id="c-onchain">–</div><div class="l" data-i18n="stat.onchain">On-chain</div></div>
 </div>
+<div class="page on" id="page-rank">
 <div class="toolbar">
   <div class="seg" id="seg-src">
     <button type="button" data-src="all" class="on">All <span class="cnt" id="cnt-all">0</span></button>
@@ -209,6 +329,14 @@ body.hw-desktop thead { top:38px; }
 </tr></thead>
 <tbody id="rows"></tbody>
 </table>
+</div>
+<div class="page" id="page-tracks">
+<div class="p-summary" id="tracks-summary"></div>
+<div class="tracks-grid" id="tracks-grid"></div>
+</div>
+<div class="page" id="page-feed" style="display:none">
+<div id="feed-list"></div>
+</div>
 <div class="foot" id="foot"></div>
 <script>
 (function () {
@@ -216,7 +344,20 @@ body.hw-desktop thead { top:38px; }
   var I18N = {
     en: {
       'stat.projects': 'Projects', 'stat.live': 'Live demos', 'stat.xpost': 'X-post',
-      'stat.high': 'Strong', 'stat.rank': 'NEXUS rank',
+      'stat.high': 'Strong', 'stat.onchain': 'On-chain',
+      'page.rank': 'Ranking', 'page.tracks': 'By track',
+      'tracks.summary': 'Tracks: <b>%1</b> · Podium leaders: <b class="cyan">%2</b>',
+      'tracks.col.place': '#', 'tracks.col.winprob': 'WP', 'tracks.col.strength': 'STR',
+      'tracks.col.place': '#', 'tracks.col.winprob': 'WP',
+      'tracks.col.project': 'PROJECT', 'tracks.col.strength': 'STR', 'tracks.col.demo': 'DEMO',
+      'tracks.projects': '%1 projects',
+      'crowd.label': 'crowd', 'crowd.title': '%1 crowd votes',
+      'attest.ok': 'attest', 'attest.na': '—', 'attest.title': 'attest %1 · %2',
+      'page.feed': 'Feed', 'feed.empty': 'No watch events yet',
+      'feed.kind.new': 'new', 'feed.kind.removed': 'removed', 'feed.kind.demo_changed': 'demo',
+      'attest.label': 'Attest',
+      'dup.badge': 'dup', 'dup.title': 'duplicate of %1',
+      'deadline.label': 'Catalog as of %1',
       'filter.heuristic': 'heuristic',
       'filter.all': 'All', 'filter.llm': 'LLM', 'filter.heur': 'heur',
       'search.ph': 'search name or track…',
@@ -233,7 +374,7 @@ body.hw-desktop thead { top:38px; }
       'sec.weaknesses': 'Weaknesses', 'sec.verdict': 'Verdict',
       'sec.threat': 'Threat rationale', 'sec.demo': 'Demo rationale', 'sec.report': 'DETAILED REPORT',
       'hint': 'shown %1 of %2',
-      'sub': 'schema v%1 · generated %2 · %3 projects · new: %4',
+      'sub': 'schema v%1 · %2 projects · catalog as of %3 · new: %4',
       'foot': 'WinProb = 0.40·maturity + 0.35·demo_quality + 0.25·track_breadth (0–10). Strength 0–10. H — heuristic estimate. Source: %1',
       'footchain': 'evaluated by %1 · on-chain: %2 · %3 tx published',
       'err': 'error loading hackwatch.json: %1 (run: cd D:/Temp/hackwatch && python -m hackwatch)',
@@ -241,7 +382,20 @@ body.hw-desktop thead { top:38px; }
     },
     ru: {
       'stat.projects': 'Проектов', 'stat.live': 'Живых демо', 'stat.xpost': 'X-post',
-      'stat.high': 'Сильные', 'stat.rank': 'Ранг NEXUS',
+      'stat.high': 'Сильные', 'stat.onchain': 'Он-чейн',
+      'page.rank': 'Рейтинг', 'page.tracks': 'По трекам',
+      'tracks.summary': 'Треков: <b>%1</b> · Лидеры на подиумах: <b class="cyan">%2</b>',
+      'tracks.col.place': '#', 'tracks.col.winprob': 'WP', 'tracks.col.strength': 'СИЛ',
+      'tracks.col.place': '#', 'tracks.col.winprob': 'WP',
+      'tracks.col.project': 'ПРОЕКТ', 'tracks.col.strength': 'СИЛА', 'tracks.col.demo': 'ДЕМО',
+      'tracks.projects': '%1 проектов',
+      'crowd.label': 'толпа', 'crowd.title': '%1 голосов толпы',
+      'attest.ok': 'аттест', 'attest.na': '—', 'attest.title': 'аттест %1 · %2',
+      'page.feed': 'Лента', 'feed.empty': 'Событий пока нет',
+      'feed.kind.new': 'новый', 'feed.kind.removed': 'removed', 'feed.kind.demo_changed': 'demo',
+      'attest.label': 'Аттест',
+      'dup.badge': 'дубль', 'dup.title': 'дубликат: %1',
+      'deadline.label': 'Каталог на %1',
       'filter.heuristic': 'эвристика',
       'filter.all': 'Все', 'filter.llm': 'LLM', 'filter.heur': 'эвр',
       'search.ph': 'поиск по имени или треку…',
@@ -258,7 +412,7 @@ body.hw-desktop thead { top:38px; }
       'sec.weaknesses': 'Слабые стороны', 'sec.verdict': 'Вердикт',
       'sec.threat': 'Обоснование угрозы', 'sec.demo': 'Обоснование демо', 'sec.report': 'ДЕТАЛЬНЫЙ ОТЧЁТ',
       'hint': 'показано %1 из %2',
-      'sub': 'схема v%1 · сгенерировано %2 · %3 проектов · новых: %4',
+      'sub': 'схема v%1 · %2 проектов · каталог от %3 · новых: %4',
       'foot': 'Шансы = 0.40·maturity + 0.35·demo_quality + 0.25·track_breadth (0–10). Сила 0–10. H — эвристическая оценка. Источник: %1',
       'footchain': 'оценено: %1 · on-chain: %2 · опубликовано tx: %3',
       'err': 'ошибка загрузки hackwatch.json: %1 (запустите: cd D:/Temp/hackwatch && python -m hackwatch)',
@@ -271,10 +425,43 @@ body.hw-desktop thead { top:38px; }
     (args || []).forEach(function (a, i) { s = s.replace('%' + (i + 1), a); });
     return s;
   };
-  var state = { key: 'rank', dir: 1, src: 'all', track: null, q: '', open: null };
+  var state = { key: 'rank', dir: 1, src: 'all', track: null, q: '', open: null, page: 'rank' };
   var data = null;
   var accLang = 'en';
   var counts = { all: 0, llm: 0, heuristic: 0, tx: 0 };
+
+  /* dedup: analysis.dedup === 'dup' — строка-дубликат (не прячем, только тушим) */
+  var isDup = function (r) {
+    var a = r.analysis || {};
+    return a.dedup === 'dup' || (r.dedup === 'dup');
+  };
+  var dupName = function (r) {
+    var a = r.analysis || {};
+    return (a.canonical_name || a.dedup_canonical || a.duplicate_of || (a.dedup && typeof a.dedup === 'object' ? a.dedup.canonical : null)) || '';
+  };
+  var dupHtml = function (r) {
+    if (!isDup(r)) return '';
+    var nm = dupName(r);
+    var title = nm ? t('dup.title', [nm]) : t('dup.badge');
+    return '<span class="dup-chip" title="' + escapeHtml(title) + '">' + t('dup.badge') + '</span>';
+  };
+  /* deadline: первое непустое из контракта, формат DD.MM HH:mm */
+  var fmtDate = function (iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return p(d.getDate()) + '.' + p(d.getMonth() + 1) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  };
+  var renderDeadline = function () {
+    var raw = (data.generated_at || data.catalog_fetched_at || data.source && data.source.fetched_at || '');
+    var box = document.getElementById('deadline');
+    if (!raw) { box.style.display = 'none'; return; }
+    var s = fmtDate(raw);
+    if (!s) s = raw;
+    box.innerHTML = t('deadline.label').replace('%1', '<b>' + escapeHtml(s) + '</b>');
+    box.style.display = 'inline-flex';
+  };
 
   /* ---------- нормализация схем: v3 scores / v2 en.ru / v1 плоская ---------- */
   var numOf = function (a) {
@@ -344,8 +531,45 @@ body.hw-desktop thead { top:38px; }
     if (!d || !d.url || as === 'none' || as === 'unavailable') {
       return '<span class="demoico warn"><span class="sym">!</span><span>' + t('demo.none') + '</span></span>';
     }
-    if (as === 'x_post' || as === 'x-post') return '<span class="demoico x"><span class="sym">✕</span><span>' + t('demo.x_post') + '</span></span>';
+    if (as === 'x_post' || as === 'x-post') return '<span class="demoico x"><span class="sym">×</span><span>' + t('demo.x_post') + '</span></span>';
     return '<span class="demoico ok"><span class="sym">✓</span><span>' + t(as || 'demo.real_demo') + '</span></span>';
+  };
+  /* компактный чип для трековых таблиц: иконка + короткий фиксированный тег */
+  var demoIconCompact = function (d) {
+    var as = d && d.assessment;
+    if (!d || !d.url || as === 'none' || as === 'unavailable') return '<span class="dcompact warn" title="no demo"><span class="sym">!</span>none</span>';
+    if (as === 'x_post' || as === 'x-post') return '<span class="dcompact x" title="X-post demo"><span class="sym">×</span>xpost</span>';
+    return '<span class="dcompact ok" title="live demo"><span class="sym">✓</span>demo</span>';
+  };
+  /* WAVE-2C: фиче-флаги. Чипы/вкладка видны, только если в данных есть поля. */
+  var hasCrowd = function (r) { return !!(r.crowd && r.crowd.count > 0); };
+  var hasAttest = function (r) { return !!(r.attest && (r.attest.evaluator || r.attest.report_hash)); };
+  var hasFeed = function () { return !!(data && Array.isArray(data.feed) && data.feed.length); };
+  /* crowd-дельта: "86 · crowd 79 ↑7" — наш score + crowd avg (avg_x10/10) + дельта */
+  var crowdChip = function (r) {
+    if (!hasCrowd(r)) return '';
+    var own = r.score ? Math.round(r.score.win_prob) : null;
+    var avg = Math.round(r.crowd.avg_x10 / 10);
+    var delta = own != null ? avg - own : 0;
+    var arrow = delta > 0 ? '↑' + delta : delta < 0 ? '↓' + Math.abs(delta) : '·0';
+    return '<span class="crowd-chip" title="' + t('crowd.title', [r.crowd.count]) + '">' +
+      (own != null ? escapeHtml(own) + ' · ' : '') + t('crowd.label') + ' ' + avg +
+      ' <span class="' + (delta >= 0 ? 'up' : 'down') + '">' + arrow + '</span></span>';
+  };
+  /* attest-чип: зелёная галка при verified, серая '—' без attest */
+  var attestChip = function (r) {
+    if (!hasAttest(r)) return '';
+    var ok = !!r.attest.verified;
+    var title = t('attest.title', [r.attest.evaluator || '—', String(r.attest.report_hash || '').slice(0, 16)]);
+    return ok
+      ? '<span class="attest-chip ok" title="' + escapeHtml(title) + '"><span class="sym">✓</span>' + t('attest.ok') + '</span>'
+      : '<span class="attest-chip none" title="' + escapeHtml(title) + '"><span class="sym">—</span>' + t('attest.na') + '</span>';
+  };
+  /* compact chip (без собственного score) для трековой таблицы */
+  var crowdChipCompact = function (r) {
+    if (!hasCrowd(r)) return '';
+    var avg = Math.round(r.crowd.avg_x10 / 10);
+    return '<span class="crowd-chip compact" title="' + t('crowd.title', [r.crowd.count]) + '">' + t('crowd.label') + ' ' + avg + '</span>';
   };
   var txHtml = function (r) {
     var tx = (r.tx && r.tx.hash) || r.tx_hash || r.onchain_tx;
@@ -504,12 +728,16 @@ body.hw-desktop thead { top:38px; }
   };
   var fillData = function () {
     var newN = data.source && (Array.isArray(data.source.new_ids_this_run) ? data.source.new_ids_this_run.length : (data.source.new_ids_this_run != null ? data.source.new_ids_this_run : data.source.new_since_last_run));
-    document.getElementById('sub').textContent = t('sub', [data.schema_version, data.generated_at, data.source.total_projects, newN == null ? 0 : newN]);
+    var catalogRaw = (data.generated_at || data.catalog_fetched_at || (data.source && data.source.fetched_at) || '');
+    var catalog = fmtDate(catalogRaw) || catalogRaw || '—';
+    document.getElementById('sub').innerHTML = t('sub', [data.schema_version, data.source.total_projects, escapeHtml(catalog), newN == null ? 0 : newN]);
+    var dl = document.getElementById('deadline');
+    if (dl) dl.style.display = 'none';
     document.getElementById('c-total').textContent = data.source.total_projects;
     document.getElementById('c-live').textContent = data.stats.live_demos;
     document.getElementById('c-xpost').textContent = data.stats.x_post_demos;
-    document.getElementById('c-high').textContent = data.stats.high_threat;
-    document.getElementById('c-rank').textContent = data.our_project.rank;
+    document.getElementById('c-high').textContent = data.stats.high_strength || 0;
+    document.getElementById('c-onchain').textContent = data.ranking.filter(function(r){return r.analysis && r.analysis.tx;}).length;
     updateFilters();
     render();
   };
@@ -539,7 +767,7 @@ body.hw-desktop thead { top:38px; }
       var src = sourceOf(r, lang);
       var ev = evaluatorOf(r, lang);
       var tr = document.createElement('tr');
-      tr.className = 'row' + (r.is_ours ? ' our' : '');
+      tr.className = 'row' + (r.is_ours ? ' our' : '') + (isDup(r) ? ' dup' : '');
       tr.setAttribute('data-id', r.id);
       var wp = r.score ? r.score.win_prob : null;
       var tracksHtml = '';
@@ -550,6 +778,7 @@ body.hw-desktop thead { top:38px; }
         '<td class="place">' + r.rank + '</td>' +
         '<td class="proj">' + escapeHtml(r.project_name) +
           (r.is_ours ? ' <span class="badge-our">OUR</span>' : '') +
+          dupHtml(r) +
           '<span class="src-chip ' + src + '">' + t(src === 'heuristic' ? 'src.heuristic' : 'src.llm') + '</span>' +
           (src === 'llm' && ev && ev !== 'heuristic' ? '<span class="ev-chip">' + escapeHtml(ev.replace('nexus/', '')) + '</span>' : '') +
         '</td>' +
@@ -558,7 +787,7 @@ body.hw-desktop thead { top:38px; }
         '<td><span class="cellbar">' + barHtml(wp, 10) +
           '<span class="v" style="color:' + scaleColor((wp == null ? 0 : wp) / 10) + '">' + (wp == null ? '–' : wp) + '</span></span></td>' +
         '<td>' + strengthChip(strengthOf(r)) + '</td>' +
-        '<td class="tx">' + txHtml(r) + '</td>' +
+        '<td class="tx">' + txHtml(r) + crowdChip(r) + attestChip(r) + '</td>' +
         '<td class="verdict">' + escapeHtml((textOf(r.analysis || {}, lang).verdict || '').slice(0, 160)) + '</td>';
       tbody.appendChild(tr);
       if (state.open === r.id) {
@@ -581,6 +810,98 @@ body.hw-desktop thead { top:38px; }
     });
     document.getElementById('hint').textContent = t('hint', [rows.length, data.ranking.length]);
     updateSortArrows();
+    renderTracks();
+    /* WAVE-2C: вкладка «Лента» видна только когда есть feed-события */
+    var feedTab = document.getElementById('tab-feed');
+    if (feedTab) feedTab.style.display = hasFeed() ? '' : 'none';
+  };
+  var renderFeed = function () {
+    var list = document.getElementById('feed-list');
+    var feed = data && Array.isArray(data.feed) ? data.feed.slice() : [];
+    if (!feed.length) {
+      list.innerHTML = '<div class="feed-empty">' + t('feed.empty') + '</div>';
+      return;
+    }
+    feed.sort(function (a, b) { return (b.ts_ms || b.ts || 0) - (a.ts_ms || a.ts || 0); });
+    var top = feed.slice(0, 50);
+    var ico = { new: 'new', removed: 'removed', demo_changed: 'demo' };
+    list.innerHTML = '<div class="feed">' + top.map(function (ev) {
+      var kind = ev.kind || 'demo_changed';
+      var cls = ico[kind] || 'demo';
+      var lbl = t('feed.kind.' + (ev.kind || 'demo_changed'));
+      var name = escapeHtml(ev.name || ev.project_id || '');
+      var det = ev.details ? escapeHtml(String(ev.details)).slice(0, 60) : '';
+      var ts = ev.ts_ms ? new Date(ev.ts_ms).toLocaleString() : (ev.ts || '');
+      return '<div class="feed-item">' +
+        '<span class="ficon ' + cls + '">' + (kind === 'removed' ? '−' : kind === 'new' ? '+' : '◈') + '</span>' +
+        '<span class="fname">' + name + '</span>' +
+        '<span class="fdet">' + lbl + (det ? ' · ' + det : '') + '</span>' +
+        '<span class="fts">' + escapeHtml(ts) + '</span>' +
+      '</div>';
+    }).join('') + '</div>';
+  };
+  var renderTracks = function () {
+    var grid = document.getElementById('tracks-grid');
+    var summary = document.getElementById('tracks-summary');
+    if (!data) { grid.innerHTML = ''; summary.innerHTML = ''; return; }
+    /* уникальные треки: считаем количество проектов, сортируем по убыванию */
+    var trackMap = {};
+    data.ranking.forEach(function (r) {
+      (r.tracks || []).forEach(function (tk) { (trackMap[tk] = trackMap[tk] || []).push(r); });
+    });
+    var tracks = Object.keys(trackMap).sort(function (a, b) {
+      var ca = trackMap[a], cb = trackMap[b];
+      return ca[0].score ? (cb[0].score.win_prob - ca[0].score.win_prob) : 0;
+    });
+    /* отсортируем треки по числу участников, чтобы популярные были первыми */
+    tracks.sort(function (a, b) { return trackMap[b].length - trackMap[a].length; });
+    /* треки по числу участников; unique leaders по id */
+    var podiumIds = {};
+    var podiumLeaders = 0;
+    var html = '';
+    /* глобальный ранг: r.rank (idx+1 из ranking по win_prob) — мелким в overall */
+    var overallMap = {};
+    data.ranking.forEach(function (r) { overallMap[r.id] = r.rank; });
+    tracks.forEach(function (tk) {
+      var members = trackMap[tk].slice().sort(function (a, b) {
+        return (b.score ? b.score.win_prob : 0) - (a.score ? a.score.win_prob : 0);
+      });
+      var top5 = members.slice(0, 5);
+      var rowsHtml = top5.map(function (r, i) {
+        var place = i + 1;
+        var podCls = place === 1 ? 'podium-gold' : place === 2 ? 'podium-silver' : place === 3 ? 'podium-bronze' : '';
+        if (place <= 3) { if (!podiumIds[r.id]) { podiumIds[r.id] = 1; podiumLeaders++; } }
+        var wp = r.score ? r.score.win_prob : null;
+        var overall = overallMap[r.id] || r.rank || '';
+        return '<tr class="' + podCls + '">' +
+          '<td class="tplace">' + place + '</td>' +
+          '<td class="tproj" title="' + escapeHtml(r.project_name) + '">' + escapeHtml(r.project_name) +
+            (r.is_ours ? ' <span class="badge-our">OUR</span>' : '') + dupHtml(r) +
+            '<span class="toverall" title="overall rank">' + escapeHtml(overall) + '</span>' +
+          '</td>' +
+          '<td class="twp"><span class="cellbar">' + barHtml(wp, 10) +
+            '<span class="v" style="color:' + scaleColor((wp == null ? 0 : wp) / 10) + '">' + (wp == null ? '–' : wp) + '</span></span></td>' +
+          '<td class="tst">' + strengthChip(strengthOf(r)) + '</td>' +
+          '<td class="tdemo">' + demoIconCompact(r.demo) + crowdChipCompact(r) + '</td>' +
+        '</tr>';
+      }).join('');
+      html +=
+        '<div class="p-track">' +
+          '<div class="p-track-head">' +
+            '<span class="tname">' + escapeHtml(tk) + '</span>' +
+            '<span class="cnt">' + t('tracks.projects', [members.length]) + '</span>' +
+          '</div>' +
+          '<table class="p-table"><thead><tr>' +
+            '<th class="tplace">' + t('tracks.col.place') + '</th>' +
+            '<th class="tproj">' + t('tracks.col.project') + '</th>' +
+            '<th class="twp">' + t('tracks.col.winprob') + '</th>' +
+            '<th class="tst">' + t('tracks.col.strength') + '</th>' +
+            '<th class="tdemo">' + t('tracks.col.demo') + '</th>' +
+          '</tr></thead><tbody>' + rowsHtml + '</tbody></table>' +
+        '</div>';
+    });
+    grid.innerHTML = html;
+    summary.innerHTML = t('tracks.summary', [tracks.length, podiumLeaders]);
   };
   var updateSortArrows = function () {
     document.querySelectorAll('th.sortable').forEach(function (th) {
@@ -668,6 +989,16 @@ body.hw-desktop thead { top:38px; }
   });
   document.getElementById('lang-en').addEventListener('click', function () { lang = 'en'; localStorage.setItem('hw-lang', 'en'); applyI18n(); });
   document.getElementById('lang-ru').addEventListener('click', function () { lang = 'ru'; localStorage.setItem('hw-lang', 'ru'); applyI18n(); });
+  document.getElementById('pager').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-page]');
+    if (!b) return;
+    state.page = b.getAttribute('data-page');
+    document.querySelectorAll('#pager button').forEach(function (x) { x.className = x === b ? 'on' : ''; });
+    document.getElementById('page-rank').className = 'page' + (state.page === 'rank' ? ' on' : '');
+    document.getElementById('page-tracks').className = 'page' + (state.page === 'tracks' ? ' on' : '');
+    document.getElementById('page-feed').style.display = state.page === 'feed' ? 'block' : 'none';
+    if (state.page === 'feed') renderFeed();
+  });
   document.getElementById('sub').textContent = t('loading');
   applyI18n();
   load();
