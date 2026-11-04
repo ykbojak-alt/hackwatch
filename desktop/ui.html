@@ -282,6 +282,9 @@ body.hw-desktop { padding-top:66px; }
 body.hw-desktop .langsw { top:calc(66px + 24px); }
 body.hw-desktop .pager { top:calc(66px + 24px); }
 body.hw-desktop thead th { top:38px; }
+/* sticky-колонтитул в трековых табличках: на странице треков нет основного thead —
+   у плейта свой отступ (заголовок+meta ≈ 76px), иначе sticky съедает колонки */
+body.hw-desktop .page.on .p-table thead th { top:76px; }
 </style></head><body>
 <h1>⚔ <span class="holo">Hackathon Watch</span></h1>
 <div class="brand">by <span class="cyan">NEXUS AiOS</span></div>
@@ -822,7 +825,16 @@ body.hw-desktop thead th { top:38px; }
       list.innerHTML = '<div class="feed-empty">' + t('feed.empty') + '</div>';
       return;
     }
-    feed.sort(function (a, b) { return (b.ts_ms || b.ts || 0) - (a.ts_ms || a.ts || 0); });
+    /* ts может быть epoch-ms (number) или ISO-строкой — общий парсер, новый сверху */
+    var tsKey = function (ev) {
+      var v = (ev.ts_ms != null && ev.ts_ms !== '') ? ev.ts_ms : ev.ts;
+      if (v == null || v === '') return 0;
+      var n = Number(v);
+      if (!isNaN(n)) return n;
+      var t = new Date(v).getTime();
+      return isNaN(t) ? 0 : t;
+    };
+    feed.sort(function (a, b) { return tsKey(b) - tsKey(a); });
     var top = feed.slice(0, 50);
     var ico = { new: 'new', removed: 'removed', demo_changed: 'demo' };
     list.innerHTML = '<div class="feed">' + top.map(function (ev) {
@@ -831,7 +843,8 @@ body.hw-desktop thead th { top:38px; }
       var lbl = t('feed.kind.' + (ev.kind || 'demo_changed'));
       var name = escapeHtml(ev.name || ev.project_id || '');
       var det = ev.details ? escapeHtml(String(ev.details)).slice(0, 60) : '';
-      var ts = ev.ts_ms ? new Date(ev.ts_ms).toLocaleString() : (ev.ts || '');
+      var tsN = tsKey(ev);
+      var ts = tsN ? fmtDate(new Date(tsN).toISOString()) : (ev.ts ? String(ev.ts) : '');
       return '<div class="feed-item">' +
         '<span class="ficon ' + cls + '">' + (kind === 'removed' ? '−' : kind === 'new' ? '+' : '◈') + '</span>' +
         '<span class="fname">' + name + '</span>' +

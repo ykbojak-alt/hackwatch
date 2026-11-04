@@ -39,7 +39,8 @@ def app_data_dir() -> str:
     return data
 
 APP_DATA = app_data_dir()
-for _name in ("hackwatch.json", "hackwatch.en.json", "hackwatch.ru.json"):
+os.environ.setdefault("HACKWATCH_STATE_DIR", APP_DATA)
+for _name in ("hackwatch.json", "hackwatch.en.json", "hackwatch.ru.json", "state.json"):
     _bundle = os.path.join(DIR, _name)
     _app = os.path.join(APP_DATA, _name)
     if os.path.exists(_bundle) and not os.path.exists(_app):
@@ -67,6 +68,7 @@ def titlebar_js(port: int) -> str:
   bar.innerHTML =
     '<span class="hw-title">\u2694 Hackathon Watch \u00b7 NEXUS</span>' +
     '<div class="hw-controls">' +
+    '  <button id="hw-refresh" title="Refresh catalog via NexusLink">⟳</button>' +
     '  <button id="hw-min" title="Minimize"><span>–</span></button>' +
     '  <button id="hw-max" title="Maximize / Restore"><span>+</span></button>' +
     '  <button id="hw-close" title="Close"><span>×</span></button>' +
@@ -96,9 +98,39 @@ def titlebar_js(port: int) -> str:
     b.addEventListener('mouseleave', function () {{ glyph.style.opacity = '0'; }});
   }});
   const closeBtn = bar.querySelector('#hw-close');
+  const refreshBtn = bar.querySelector('#hw-refresh');
+  refreshBtn.style.cssText =
+    'border:0;background:transparent;color:#7a8b9c;font-size:16px;cursor:pointer;' +
+    'padding:0 4px;line-height:1;';
   document.body.appendChild(bar);
   document.body.classList.add('hw-desktop');
 
+  let refreshing = false;
+  refreshBtn.addEventListener('click', function () {{
+    if (refreshing) return;
+    refreshing = true;
+    refreshBtn.style.color = '#4dd0e1';
+    refreshBtn.textContent = '…';
+    ctl('refresh');
+    const poll = setInterval(function () {{
+      fetch('/__hwctl__', {{
+        method: 'POST',
+        headers: {{'Content-Type': 'application/json'}},
+        body: JSON.stringify({{ action: 'refresh_status' }}),
+      }}).then(function (r) {{ return r.json(); }}).then(function (d) {{
+        if (d.updating) return;
+        clearInterval(poll);
+        if (d.error) {{
+          refreshing = false;
+          refreshBtn.textContent = '✕';
+          refreshBtn.title = 'Refresh failed: ' + d.error;
+          setTimeout(function () {{ refreshBtn.textContent = '⟳'; refreshBtn.style.color = '#7a8b9c'; refreshBtn.title = 'Refresh catalog via NexusLink'; }}, 4000);
+        }} else {{
+          location.reload();
+        }}
+      }}).catch(function () {{}});
+    }}, 3000);
+  }});
   bar.querySelector('#hw-min').addEventListener('click', function () {{ ctl('min'); }});
   bar.querySelector('#hw-max').addEventListener('click', function () {{ ctl('max'); }});
   closeBtn.addEventListener('click', function () {{ ctl('close'); }});
@@ -115,6 +147,35 @@ ERROR_HTML = """<!doctype html><html><head><meta charset="utf-8"><title>Hackatho
 <p style="color:#7a8b9c;">Check that the files exist there, then close this window
 and run <code>run_desktop.ps1</code> again.</p>
 </body></html>"""
+
+
+# ---------------------------------------------------------------------------
+# In-app refresh: run the hackwatch pipeline in-process (bundled as data in the
+# exe), writing hackwatch*.json + state.json into APP_DATA via HACKWATCH_STATE_DIR.
+# ---------------------------------------------------------------------------
+_refresh_state = {"running": False, "error": None}
+
+
+def run_refresh() -> None:
+    _refresh_state["running"] = True
+    _refresh_state["error"] = None
+    try:
+        if DIR not in sys.path:
+            sys.path.insert(0, DIR)
+        import hackwatch  # noqa: E402 — resolved from bundle dir at runtime
+
+        old_argv = sys.argv
+        try:
+            sys.argv = ["hackwatch", "--export-lang", "all"]
+            rc = hackwatch.main()
+        finally:
+            sys.argv = old_argv
+        if rc != 0:
+            _refresh_state["error"] = f"pipeline exited rc={rc}"
+    except Exception as exc:
+        _refresh_state["error"] = str(exc)
+    finally:
+        _refresh_state["running"] = False
 
 
 class CtrlHandler(SimpleHTTPRequestHandler):
@@ -152,8 +213,19 @@ class CtrlHandler(SimpleHTTPRequestHandler):
             data = json.loads(self.rfile.read(length) or b"{}")
         except Exception:
             data = {}
-        window = self.window_holder.window
         action = data.get("action")
+        if action == "refresh":
+            if _refresh_state["running"]:
+                self._reply({"ok": True, "already": True})
+            else:
+                threading.Thread(target=run_refresh, daemon=True).start()
+                self._reply({"ok": True})
+            return
+        if action == "refresh_status":
+            self._reply({"ok": True, "updating": _refresh_state["running"],
+                         "error": _refresh_state["error"]})
+            return
+        window = self.window_holder.window
         if window is None:
             self._reply({"ok": False, "error": "no window"})
             return
