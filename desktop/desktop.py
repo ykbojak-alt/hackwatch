@@ -102,8 +102,100 @@ def titlebar_js(port: int) -> str:
   refreshBtn.style.cssText =
     'border:0;background:transparent;color:#7a8b9c;font-size:16px;cursor:pointer;' +
     'padding:0 4px;line-height:1;';
+  // Content scales with window width; the titlebar keeps its size.
+  const zoomRoot = document.createElement('div');
+  zoomRoot.id = 'hw-zoom-root';
+  while (document.body.firstChild) zoomRoot.appendChild(document.body.firstChild);
+  document.body.appendChild(zoomRoot);
   document.body.appendChild(bar);
   document.body.classList.add('hw-desktop');
+  const HW_BASE_W = 1440;
+  // Reserve the scrollbar gutter permanently, else its toggle on height
+  // resize shifts the layout width and the content jitters sideways.
+  document.documentElement.style.scrollbarGutter = 'stable';
+  document.documentElement.style.overflowX = 'hidden';
+  const hwApplyZoom = function () {{
+    const z = Math.min(1.7, Math.max(0.55, window.innerWidth / HW_BASE_W));
+    zoomRoot.style.zoom = z;
+  }};
+  hwApplyZoom();
+  window.addEventListener('resize', hwApplyZoom);
+
+  // Frameless window: 10px edge zones resize it, the titlebar drags it.
+  // Server-side applies deltas against a base rect captured at drag_begin,
+  // so out-of-order or dropped POSTs can never skew the geometry.
+  const HW_EDGE = 10;
+  let drag = null;
+  const ctlPost = function (payload) {{
+    return fetch('/__hwctl__', {{
+      method: 'POST',
+      headers: {{'Content-Type': 'application/json'}},
+      body: JSON.stringify(payload),
+    }}).catch(function () {{}});
+  }};
+  const edgeAt = function (e) {{
+    if (e.target.closest && e.target.closest('button')) return '';
+    const x = e.clientX, y = e.clientY, w = window.innerWidth, h = window.innerHeight;
+    let edge = '';
+    if (x >= w - HW_EDGE) edge += 'e';
+    if (x <= HW_EDGE) edge += 'w';
+    if (y >= h - HW_EDGE) edge += 's';
+    if (y <= HW_EDGE) edge += 'n';
+    return edge;
+  }};
+  const EDGE_CURSORS = {{
+    'e':'ew-resize','w':'ew-resize','n':'ns-resize','s':'ns-resize',
+    'ne':'nesw-resize','sw':'nesw-resize','nw':'nwse-resize','se':'nwse-resize'
+  }};
+  let lastEv = null;
+  const pumpNow = function () {{
+    if (!drag || !lastEv) return;
+    const payload = {{
+      action: drag.mode,
+      dx: lastEv.screenX - drag.sx,
+      dy: lastEv.screenY - drag.sy,
+    }};
+    if (drag.mode === 'resize') payload.edge = drag.edge;
+    ctlPost(payload);
+    drag.sent = Date.now();
+  }};
+  document.addEventListener('mousemove', function (e) {{
+    if (drag) {{
+      lastEv = e;
+      if (Date.now() - drag.sent >= 30) pumpNow();
+      return;
+    }}
+    document.documentElement.style.cursor = EDGE_CURSORS[edgeAt(e)] || '';
+  }});
+  document.addEventListener('mousedown', function (e) {{
+    if (e.button !== 0) return;
+    const edge = edgeAt(e);
+    if (edge) {{
+      e.preventDefault();
+      drag = {{ mode: 'resize', edge: edge, sx: e.screenX, sy: e.screenY, sent: 0 }};
+      ctlPost({{ action: 'drag_begin' }});
+      return;
+    }}
+    if (e.target.closest && e.target.closest('#hw-titlebar') &&
+        !e.target.closest('button')) {{
+      e.preventDefault();
+      drag = {{ mode: 'move', sx: e.screenX, sy: e.screenY, sent: 0 }};
+      ctlPost({{ action: 'drag_begin' }});
+    }}
+  }});
+  document.addEventListener('mouseup', function () {{
+    if (!drag) return;
+    pumpNow();
+    ctlPost({{ action: 'drag_end' }});
+    drag = null;
+    lastEv = null;
+  }});
+  document.addEventListener('mouseleave', function () {{
+    if (!drag) return;
+    drag = null;
+    lastEv = null;
+    ctlPost({{ action: 'drag_end' }});
+  }});
 
   let refreshing = false;
   refreshBtn.addEventListener('click', function () {{
@@ -236,6 +328,48 @@ class CtrlHandler(SimpleHTTPRequestHandler):
                 self.window_holder.toggle_maximize()
             elif action == "close":
                 window.destroy()
+            elif action == "drag_begin":
+                self.window_holder.drag_base = (window.x, window.y,
+                                                window.width, window.height)
+                self._reply({"ok": True})
+                return
+            elif action == "drag_end":
+                self.window_holder.drag_base = None
+                self._reply({"ok": True})
+                return
+            elif action == "move":
+                if self.window_holder._maximized:
+                    self._reply({"ok": True, "skipped": "maximized"})
+                    return
+                base = self.window_holder.drag_base or (window.x, window.y, 0, 0)
+                dx = int(data.get("dx", 0) or 0)
+                dy = int(data.get("dy", 0) or 0)
+                window.move(base[0] + dx, base[1] + dy)
+            elif action == "resize":
+                if self.window_holder._maximized:
+                    self._reply({"ok": True, "skipped": "maximized"})
+                    return
+                edge = str(data.get("edge", ""))
+                dx = int(data.get("dx", 0) or 0)
+                dy = int(data.get("dy", 0) or 0)
+                MIN_W, MIN_H = 900, 600
+                x, y, w, h = self.window_holder.drag_base or (
+                    window.x, window.y, window.width, window.height)
+                nx, ny, nw, nh = x, y, w, h
+                if "e" in edge:
+                    nw = max(MIN_W, w + dx)
+                if "s" in edge:
+                    nh = max(MIN_H, h + dy)
+                if "w" in edge:
+                    nw = max(MIN_W, w - dx)
+                    nx = x + (w - nw)
+                if "n" in edge:
+                    nh = max(MIN_H, h - dy)
+                    ny = y + (h - nh)
+                if nx != x or ny != y:
+                    window.move(nx, ny)
+                if nw != w or nh != h:
+                    window.resize(nw, nh)
             else:
                 self._reply({"ok": False, "error": f"unknown action {action}"})
                 return
@@ -256,6 +390,7 @@ class WindowHolder:
     def __init__(self):
         self.window = None
         self._maximized = False
+        self.drag_base = None
 
     def set(self, window):
         self.window = window
@@ -402,6 +537,9 @@ def main() -> int:
     kwargs = dict(
         title=TITLE, frameless=True, width=W, height=H,
         background_color=BG, min_size=(900, 600),
+        # pywebview's own easy_drag would also move the window on every
+        # mousedown and fight our edge-resize/titlebar-drag handlers.
+        easy_drag=False,
     )
     if not probe(url):
         print("WARN page probe failed; showing error window", flush=True)
